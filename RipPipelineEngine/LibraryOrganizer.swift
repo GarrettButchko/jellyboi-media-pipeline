@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 public struct LibraryOrganizer: Sendable {
     public static func safeFilename(_ s: String) -> String {
@@ -24,8 +25,8 @@ public struct LibraryOrganizer: Sendable {
         let destMKV = destDir.appendingPathComponent("\(folderName).mkv")
 
         if FileManager.default.fileExists(atPath: destMKV.path) {
-            Logger.error("Destination already exists — refusing to overwrite: \(destMKV.path)")
-            Logger.notify(
+            AppLogger.error("Destination already exists — refusing to overwrite: \(destMKV.path)")
+            Notifier.notify(
                 title: "Rip Pipeline ⚠️",
                 message: "\(title) (\(year))",
                 subtitle: "Already exists in library — left un-moved, needs manual review"
@@ -34,10 +35,10 @@ public struct LibraryOrganizer: Sendable {
         }
 
         try FileManager.default.createDirectory(at: destDir, withIntermediateDirectories: true)
-        Logger.info("Moving MKV → \(destMKV.path)")
+        AppLogger.info("Moving MKV → \(destMKV.path)")
         try FileManager.default.moveItem(at: srcURL, to: destMKV)
 
-        Logger.info("Done: \(destDir.path)")
+        AppLogger.info("Done: \(destDir.path)")
         return destMKV
     }
 
@@ -62,8 +63,8 @@ public struct LibraryOrganizer: Sendable {
         let destMKV = destDir.appendingPathComponent(fileName)
 
         if FileManager.default.fileExists(atPath: destMKV.path) {
-            Logger.error("Destination already exists — refusing to overwrite: \(destMKV.path)")
-            Logger.notify(
+            AppLogger.error("Destination already exists — refusing to overwrite: \(destMKV.path)")
+            Notifier.notify(
                 title: "Rip Pipeline ⚠️",
                 message: String(format: "%@ S%02dE%02d", seriesTitle, season, episode),
                 subtitle: "Already exists in library — left un-moved, needs manual review"
@@ -72,10 +73,10 @@ public struct LibraryOrganizer: Sendable {
         }
 
         try FileManager.default.createDirectory(at: destDir, withIntermediateDirectories: true)
-        Logger.info("Moving MKV → \(destMKV.path)")
+        AppLogger.info("Moving MKV → \(destMKV.path)")
         try FileManager.default.moveItem(at: srcURL, to: destMKV)
 
-        Logger.info("Done: \(destDir.path)")
+        AppLogger.info("Done: \(destDir.path)")
         return destMKV
     }
 }

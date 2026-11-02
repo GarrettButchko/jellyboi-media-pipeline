@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 public struct CropDetector: Sendable {
     private let toolRegistry: ToolRegistry
@@ -11,11 +12,11 @@ public struct CropDetector: Sendable {
 
     public func detectCrop(fileURL: URL) async throws -> CropEdges? {
         guard let hb = toolRegistry.handBrakeCLI else {
-            Logger.warning("HandBrakeCLI not found — skipping crop detection.")
+            AppLogger.warning("HandBrakeCLI not found — skipping crop detection.")
             return nil
         }
 
-        Logger.info("Running HandBrakeCLI scan for crop…")
+        AppLogger.info("Running HandBrakeCLI scan for crop…")
         let res = try await ProcessRunner.run(
             executable: hb,
             arguments: ["--scan", "-i", fileURL.path],
@@ -30,7 +31,7 @@ public struct CropDetector: Sendable {
               let r2 = Range(match.range(at: 2), in: combinedOutput),
               let r3 = Range(match.range(at: 3), in: combinedOutput),
               let r4 = Range(match.range(at: 4), in: combinedOutput) else {
-            Logger.info("HandBrakeCLI found no crop.")
+            AppLogger.info("HandBrakeCLI found no crop.")
             return nil
         }
 
@@ -41,11 +42,11 @@ public struct CropDetector: Sendable {
 
         let edges = CropEdges(top: top, bottom: bottom, left: left, right: right, minPx: 8)
         if !edges.isMeaningful {
-            Logger.info("Crop edges too small — skipping.")
+            AppLogger.info("Crop edges too small — skipping.")
             return nil
         }
 
-        Logger.info("Crop edges — top=\(edges.top) bottom=\(edges.bottom) left=\(edges.left) right=\(edges.right)")
+        AppLogger.info("Crop edges — top=\(edges.top) bottom=\(edges.bottom) left=\(edges.left) right=\(edges.right)")
         return edges
     }
 
@@ -54,7 +55,7 @@ public struct CropDetector: Sendable {
             throw ProcessError.executableNotFound("mkvpropedit")
         }
 
-        Logger.info("Applying crop metadata to MKV (no re-encode)…")
+        AppLogger.info("Applying crop metadata to MKV (no re-encode)…")
         var args = [
             fileURL.path,
             "--edit", "track:v1",
@@ -74,16 +75,16 @@ public struct CropDetector: Sendable {
                 "--set", "display-width=\(displayWidth)",
                 "--set", "display-height=\(newHeight)"
             ])
-            Logger.info("Recomputed aspect ratio for crop — display \(displayWidth)x\(newHeight) (was \(dims.width)x\(dims.height))")
+            AppLogger.info("Recomputed aspect ratio for crop — display \(displayWidth)x\(newHeight) (was \(dims.width)x\(dims.height))")
         } else {
-            Logger.warning("Could not read video dimensions — aspect ratio metadata left unchanged.")
+            AppLogger.warning("Could not read video dimensions — aspect ratio metadata left unchanged.")
         }
 
         let res = try await ProcessRunner.run(executable: mkvpropedit, arguments: args)
         if !res.isSuccess {
-            Logger.warning("mkvpropedit crop application failed: \(res.stderr)")
+            AppLogger.warning("mkvpropedit crop application failed: \(res.stderr)")
         } else {
-            Logger.info("Crop metadata applied.")
+            AppLogger.info("Crop metadata applied.")
         }
     }
 }

@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 struct RipPipelineMain {
     static func run() async {
@@ -34,7 +35,7 @@ struct RipPipelineMain {
         }
 
         if isVerbose {
-            Logger.currentLevel = .debug
+            AppLogger.minimumLevel = .debug
         }
 
         let config = PipelineConfig.load()
@@ -50,14 +51,14 @@ struct RipPipelineMain {
 
         var isDir: ObjCBool = false
         guard FileManager.default.fileExists(atPath: targetURL.path, isDirectory: &isDir) else {
-            Logger.error("Path does not exist: \(targetURL.path)")
+            AppLogger.error("Path does not exist: \(targetURL.path)")
             return
         }
 
         if isDir.boolValue {
             let fm = FileManager.default
             guard let contents = try? fm.contentsOfDirectory(at: targetURL, includingPropertiesForKeys: nil) else {
-                Logger.info("No files found in \(targetURL.path)")
+                AppLogger.info("No files found in \(targetURL.path)")
                 return
             }
 
@@ -73,18 +74,18 @@ struct RipPipelineMain {
                 .sorted { $0.lastPathComponent < $1.lastPathComponent }
 
             guard !mkvFiles.isEmpty else {
-                Logger.info("No MKV files found in \(targetURL.path)")
+                AppLogger.info("No MKV files found in \(targetURL.path)")
                 return
             }
 
-            Logger.info("Batch mode: \(mkvFiles.count) MKV file(s) in \(targetURL.path)")
+            AppLogger.info("Batch mode: \(mkvFiles.count) MKV file(s) in \(targetURL.path)")
             for mkv in mkvFiles {
                 await pipeline.process(fileURL: mkv, outputDir: outputDirOverride, forceSubs: forceSubs)
             }
         } else {
             let name = targetURL.lastPathComponent
             if targetURL.pathExtension.lowercased() != "mkv" || name.hasPrefix(".") || name.hasPrefix("._") {
-                Logger.info("Skipping non-MKV file: \(name)")
+                AppLogger.info("Skipping non-MKV file: \(name)")
                 return
             }
             await pipeline.process(fileURL: targetURL, outputDir: outputDirOverride, forceSubs: forceSubs)

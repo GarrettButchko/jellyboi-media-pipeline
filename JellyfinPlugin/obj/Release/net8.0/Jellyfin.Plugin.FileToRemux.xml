@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Jellyfin.Plugin.FileToRemux</name>
+    </assembly>
+    <members>
+        <member name="T:Jellyfin.Plugin.FileToRemux.Controllers.UploadController">
+            <summary>
+            API controller providing status handshake, library discovery, and streaming MKV uploads for FileToRemux.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.#ctor(MediaBrowser.Controller.Library.ILibraryManager,MediaBrowser.Controller.Configuration.IServerConfigurationManager,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.FileToRemux.Controllers.UploadController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.FileToRemux.Controllers.UploadController"/> class.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.GetStatus">
+            <summary>
+            Status check endpoint used by the FileToRemux macOS app to detect if the plugin is installed.
+            </summary>
+            <returns>Plugin metadata and capabilities.</returns>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.GetLibraries">
+            <summary>
+            Returns available Movie and TV libraries configured on this Jellyfin server, along with their physical server locations.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.UploadMovie(System.String,System.String,System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Streams an MKV movie directly to the destination library folder and refreshes the library item.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.UploadEpisode(System.String,System.String,System.String,System.Int32,System.Int32,System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Streams an MKV episode directly to the TV series season folder and refreshes the library item.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FileToRemux.Plugin">
+            <summary>
+            The main plugin class for FileToRemux Jellyfin integration.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Plugin.#ctor(MediaBrowser.Common.Configuration.IApplicationPaths,MediaBrowser.Model.Serialization.IXmlSerializer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.FileToRemux.Plugin"/> class.
+            </summary>
+            <param name="applicationPaths">Instance of the <see cref="T:MediaBrowser.Common.Configuration.IApplicationPaths"/> interface.</param>
+            <param name="xmlSerializer">Instance of the <see cref="T:MediaBrowser.Model.Serialization.IXmlSerializer"/> interface.</param>
+        </member>
+        <member name="P:Jellyfin.Plugin.FileToRemux.Plugin.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Jellyfin.Plugin.FileToRemux.Plugin.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:Jellyfin.Plugin.FileToRemux.Plugin.Description">
+            <inheritdoc />
+        </member>
+        <member name="P:Jellyfin.Plugin.FileToRemux.Plugin.Instance">
+            <summary>
+            Gets the current plugin instance.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FileToRemux.PluginConfiguration">
+            <summary>
+            Plugin configuration for FileToRemux.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FileToRemux.PluginConfiguration.EnableDirectUploads">
+            <summary>
+            Gets or sets a value indicating whether direct uploads from FileToRemux are enabled.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FileToRemux.PluginConfiguration.CustomTempUploadPath">
+            <summary>
+            Gets or sets the temporary upload buffer path. If null, the system temp directory is used.
+            </summary>
+        </member>
+    </members>
+</doc>

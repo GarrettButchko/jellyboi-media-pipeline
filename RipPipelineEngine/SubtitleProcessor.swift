@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 public struct SubtitleProcessor: Sendable {
     private let toolRegistry: ToolRegistry
@@ -90,7 +91,7 @@ public struct SubtitleProcessor: Sendable {
             return data
         }
 
-        Logger.info("Stripped \(removed) ad/credit cue(s) from subtitles.")
+        AppLogger.info("Stripped \(removed) ad/credit cue(s) from subtitles.")
         var outBlocks: [String] = []
         for (idx, item) in kept.enumerated() {
             outBlocks.append("\(idx + 1)\n\(item.timestamp)\n\(item.text)")
@@ -111,7 +112,7 @@ public struct SubtitleProcessor: Sendable {
             return data
         }
         let cleaned = regex.stringByReplacingMatches(in: text, range: range, withTemplate: "")
-        Logger.info("Stripped italic/bold/underline/font styling tags from subtitles.")
+        AppLogger.info("Stripped italic/bold/underline/font styling tags from subtitles.")
         return encodeSRT(cleaned)
     }
 
@@ -179,7 +180,7 @@ public struct SubtitleProcessor: Sendable {
             outBlocks.append("\(idx)\n\(ts)\n\(fixCueText(cueText))")
         }
 
-        Logger.info("Converted ALL-CAPS subtitle (\(Int(ratio * 100))% uppercase) to sentence case.")
+        AppLogger.info("Converted ALL-CAPS subtitle (\(Int(ratio * 100))% uppercase) to sentence case.")
         let resultStr = outBlocks.joined(separator: "\n\n") + "\n"
         return encodeSRT(resultStr)
     }
@@ -240,19 +241,19 @@ public struct SubtitleProcessor: Sendable {
         let maxBefore = 20.0 * 60.0
 
         if lastCue > videoDuration + maxAfter {
-            Logger.info("Subtitle's last cue (\(Int(lastCue))s) runs past the video's decoded end (\(Int(videoDuration))s) — likely a cut mismatch.")
+            AppLogger.info("Subtitle's last cue (\(Int(lastCue))s) runs past the video's decoded end (\(Int(videoDuration))s) — likely a cut mismatch.")
             return false
         }
 
         if lastCue < videoDuration - maxBefore {
-            Logger.info("Subtitle's last cue (\(Int(lastCue))s) ends too far before the video's decoded end (\(Int(videoDuration))s) — likely the wrong release.")
+            AppLogger.info("Subtitle's last cue (\(Int(lastCue))s) ends too far before the video's decoded end (\(Int(videoDuration))s) — likely the wrong release.")
             return false
         }
 
         if checkStart {
             let leadInTolerance = (mediaType == "episode") ? 12.0 : 300.0
             if let firstCue = firstCueStartSeconds(data: srtData), firstCue > leadInTolerance {
-                Logger.info("Subtitle's first cue doesn't start until \(Int(firstCue))s into the video (allowed \(Int(leadInTolerance))s) — likely missing opening dialogue.")
+                AppLogger.info("Subtitle's first cue doesn't start until \(Int(firstCue))s into the video (allowed \(Int(leadInTolerance))s) — likely missing opening dialogue.")
                 return false
             }
         }
@@ -265,11 +266,11 @@ public struct SubtitleProcessor: Sendable {
     public func syncSubtitlesMovie(srtData: Data, mkvURL: URL) async -> Data {
         guard let ffsubsync = toolRegistry.ffsubsync,
               let ffmpeg = toolRegistry.ffmpeg else {
-            Logger.warning("ffsubsync or ffmpeg not found, skipping sync.")
+            AppLogger.warning("ffsubsync or ffmpeg not found, skipping sync.")
             return srtData
         }
 
-        Logger.info("Syncing subtitle timing to audio (ffsubsync)…")
+        AppLogger.info("Syncing subtitle timing to audio (ffsubsync)…")
         let tmpDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try? FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tmpDir) }
@@ -295,7 +296,7 @@ public struct SubtitleProcessor: Sendable {
         )
 
         guard let extractRes = extract, extractRes.isSuccess, FileManager.default.fileExists(atPath: audioMp3.path) else {
-            Logger.warning("Audio extraction failed, using original subtitle timing.")
+            AppLogger.warning("Audio extraction failed, using original subtitle timing.")
             return srtData
         }
 
@@ -310,17 +311,17 @@ public struct SubtitleProcessor: Sendable {
         )
 
         if let res = syncRes, res.isSuccess, let syncedData = try? Data(contentsOf: outSrt) {
-            Logger.info("Subtitle sync complete.")
+            AppLogger.info("Subtitle sync complete.")
             return syncedData
         }
 
-        Logger.warning("ffsubsync failed, using original timing.")
+        AppLogger.warning("ffsubsync failed, using original timing.")
         return srtData
     }
 
     public func runAlass(srtData: Data, mkvURL: URL) async -> Data? {
         guard let alass = toolRegistry.alassCLI else {
-            Logger.warning("alass-cli not found, skipping sync.")
+            AppLogger.warning("alass-cli not found, skipping sync.")
             return nil
         }
 
@@ -351,12 +352,12 @@ public struct SubtitleProcessor: Sendable {
         let blocks = Self.parseAlassBlocks(combined)
         if !blocks.isEmpty && Self.isDifferentCut(blocks: blocks) {
             let maxShift = blocks.map { abs($0.shift) }.max() ?? 0
-            Logger.warning("alass needed a \(String(format: "%.1f", maxShift))s block shift across a large part of the subtitle (different cut) — keeping original timing.")
+            AppLogger.warning("alass needed a \(String(format: "%.1f", maxShift))s block shift across a large part of the subtitle (different cut) — keeping original timing.")
             return nil
         }
 
         if Self.hasNegativeTimestamps(syncedData) {
-            Logger.warning("alass output has negative timestamps (scrambled) — using original timing.")
+            AppLogger.warning("alass output has negative timestamps (scrambled) — using original timing.")
             return nil
         }
 
@@ -364,16 +365,16 @@ public struct SubtitleProcessor: Sendable {
     }
 
     public func syncSubtitlesTV(srtData: Data, mkvURL: URL, videoDuration: Double?, sourceType: SourceType) async -> Data {
-        Logger.info("Syncing subtitle timing to video (alass\(sourceType == .dvd ? ", DVD mode" : ""))…")
+        AppLogger.info("Syncing subtitle timing to video (alass\(sourceType == .dvd ? ", DVD mode" : ""))…")
 
         if let synced = await runAlass(srtData: srtData, mkvURL: mkvURL) {
             if Self.durationMatches(srtData: synced, videoDuration: videoDuration, mediaType: "episode", checkStart: true) {
-                Logger.info("Subtitle sync complete (alass).")
+                AppLogger.info("Subtitle sync complete (alass).")
                 return synced
             }
         }
 
-        Logger.warning("alass output failed validation — using original timing.")
+        AppLogger.warning("alass output failed validation — using original timing.")
         return srtData
     }
 

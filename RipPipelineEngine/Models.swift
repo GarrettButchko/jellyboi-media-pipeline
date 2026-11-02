@@ -162,3 +162,205 @@ public struct SubtitleCandidate: Sendable {
         self.fps = fps
     }
 }
+
+// MARK: - Jellyfin Plugin Integration Models
+
+public struct JellyfinServerStatus: Sendable, Codable, Equatable {
+    public let plugin: String?
+    public let installed: Bool
+    public let version: String?
+    public let directUploadsEnabled: Bool?
+    public let serverName: String?
+
+    public init(
+        plugin: String? = "FileToRemux",
+        installed: Bool = true,
+        version: String? = "1.0.0",
+        directUploadsEnabled: Bool? = true,
+        serverName: String? = nil
+    ) {
+        self.plugin = plugin
+        self.installed = installed
+        self.version = version
+        self.directUploadsEnabled = directUploadsEnabled
+        self.serverName = serverName
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case plugin, Plugin
+        case installed, Installed
+        case version, Version
+        case directUploadsEnabled, DirectUploadsEnabled
+        case serverName, ServerName
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.plugin = (try? container.decodeIfPresent(String.self, forKey: .plugin))
+            ?? (try? container.decodeIfPresent(String.self, forKey: .Plugin))
+        self.installed = (try? container.decodeIfPresent(Bool.self, forKey: .installed))
+            ?? (try? container.decodeIfPresent(Bool.self, forKey: .Installed))
+            ?? true
+        self.version = (try? container.decodeIfPresent(String.self, forKey: .version))
+            ?? (try? container.decodeIfPresent(String.self, forKey: .Version))
+        self.directUploadsEnabled = (try? container.decodeIfPresent(Bool.self, forKey: .directUploadsEnabled))
+            ?? (try? container.decodeIfPresent(Bool.self, forKey: .DirectUploadsEnabled))
+        self.serverName = (try? container.decodeIfPresent(String.self, forKey: .serverName))
+            ?? (try? container.decodeIfPresent(String.self, forKey: .ServerName))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(plugin, forKey: .plugin)
+        try container.encode(installed, forKey: .installed)
+        try container.encodeIfPresent(version, forKey: .version)
+        try container.encodeIfPresent(directUploadsEnabled, forKey: .directUploadsEnabled)
+        try container.encodeIfPresent(serverName, forKey: .serverName)
+    }
+}
+
+public struct JellyfinLibrary: Sendable, Codable, Identifiable, Hashable {
+    public let id: String
+    public let name: String
+    public let collectionType: String
+    public let path: String?
+    public let locations: [String]
+
+    public init(id: String, name: String, collectionType: String, path: String? = nil, locations: [String] = []) {
+        self.id = id
+        self.name = name
+        self.collectionType = collectionType
+        self.path = path ?? locations.first
+        self.locations = !locations.isEmpty ? locations : (path != nil ? [path!] : [])
+    }
+
+    public var effectivePath: String? {
+        path ?? locations.first
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, Id, ItemId
+        case name, Name
+        case collectionType, CollectionType
+        case path, Path
+        case locations, Locations
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = (try? container.decodeIfPresent(String.self, forKey: .id))
+            ?? (try? container.decodeIfPresent(String.self, forKey: .Id))
+            ?? (try? container.decodeIfPresent(String.self, forKey: .ItemId))
+            ?? UUID().uuidString
+        self.name = (try? container.decodeIfPresent(String.self, forKey: .name))
+            ?? (try? container.decodeIfPresent(String.self, forKey: .Name))
+            ?? "Unknown Library"
+        self.collectionType = (try? container.decodeIfPresent(String.self, forKey: .collectionType))
+            ?? (try? container.decodeIfPresent(String.self, forKey: .CollectionType))
+            ?? "unknown"
+        let locs = (try? container.decodeIfPresent([String].self, forKey: .locations))
+            ?? (try? container.decodeIfPresent([String].self, forKey: .Locations))
+            ?? []
+        let singlePath = (try? container.decodeIfPresent(String.self, forKey: .path))
+            ?? (try? container.decodeIfPresent(String.self, forKey: .Path))
+        self.path = singlePath ?? locs.first
+        self.locations = !locs.isEmpty ? locs : (singlePath != nil ? [singlePath!] : [])
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encode(collectionType, forKey: .collectionType)
+        try container.encodeIfPresent(path, forKey: .path)
+        try container.encode(locations, forKey: .locations)
+    }
+}
+
+public enum JellyfinDetectionState: Sendable, Equatable {
+    case idle
+    case checking
+    case detected(version: String, serverName: String?)
+    case pluginMissing(serverName: String?)
+    case unauthorized
+    case unreachable(message: String)
+}
+
+public enum JellyfinMediaType: String, Sendable, Codable, CaseIterable {
+    case movie = "Movie"
+    case tvEpisode = "TV Episode"
+}
+
+public enum JellyfinUploadStatus: String, Sendable, Codable, CaseIterable {
+    case queued = "Queued"
+    case uploading = "Uploading"
+    case completed = "Uploaded"
+    case failed = "Failed"
+    case cancelled = "Cancelled"
+}
+
+public struct JellyfinUploadItem: Identifiable, Sendable {
+    public let id: UUID
+    public var fileURL: URL
+    public var fileName: String
+    public var fileSizeBytes: Int64
+    public var mediaType: JellyfinMediaType
+    public var title: String
+    public var year: String?
+    public var imdbId: String?
+    public var season: Int?
+    public var episode: Int?
+    public var episodeTitle: String?
+    public var targetLibraryId: String?
+    public var targetServerPath: String?
+    public var status: JellyfinUploadStatus
+    public var progressFraction: Double
+    public var statusDetail: String
+    public var errorMessage: String?
+
+    public init(
+        id: UUID = UUID(),
+        fileURL: URL,
+        fileName: String? = nil,
+        fileSizeBytes: Int64? = nil,
+        mediaType: JellyfinMediaType = .movie,
+        title: String,
+        year: String? = nil,
+        imdbId: String? = nil,
+        season: Int? = nil,
+        episode: Int? = nil,
+        episodeTitle: String? = nil,
+        targetLibraryId: String? = nil,
+        targetServerPath: String? = nil,
+        status: JellyfinUploadStatus = .queued,
+        progressFraction: Double = 0.0,
+        statusDetail: String = "Queued",
+        errorMessage: String? = nil
+    ) {
+        self.id = id
+        self.fileURL = fileURL
+        self.fileName = fileName ?? fileURL.lastPathComponent
+        let size = fileSizeBytes ?? ((try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int64) ?? 0)
+        self.fileSizeBytes = size
+        self.mediaType = mediaType
+        self.title = title
+        self.year = year
+        self.imdbId = imdbId
+        self.season = season
+        self.episode = episode
+        self.episodeTitle = episodeTitle
+        self.targetLibraryId = targetLibraryId
+        self.targetServerPath = targetServerPath
+        self.status = status
+        self.progressFraction = progressFraction
+        self.statusDetail = statusDetail
+        self.errorMessage = errorMessage
+    }
+
+    public var fileSizeString: String {
+        let bcf = ByteCountFormatter()
+        bcf.allowedUnits = [.useGB, .useMB]
+        bcf.countStyle = .file
+        return bcf.string(fromByteCount: fileSizeBytes)
+    }
+}

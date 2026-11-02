@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 public actor OpenSubtitlesClient {
     private let apiKey: String
@@ -67,11 +68,11 @@ public actor OpenSubtitlesClient {
                let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let token = json["token"] as? String {
                 self.token = token
-                Logger.info("OpenSubtitles: logged in as '\(username)' (higher download quota).")
+                AppLogger.info("OpenSubtitles: logged in as '\(username)' (higher download quota).")
                 return token
             }
         } catch {
-            Logger.warning("OpenSubtitles login failed (\(error.localizedDescription)) — falling back to anonymous quota.")
+            AppLogger.warning("OpenSubtitles login failed (\(error.localizedDescription)) — falling back to anonymous quota.")
         }
         return nil
     }
@@ -100,9 +101,9 @@ public actor OpenSubtitlesClient {
         videoFPS: Double? = nil,
         processor: SubtitleProcessor
     ) async -> Data? {
-        Logger.info("Fetching subtitles for \(imdbId) (source=\(sourceType.rawValue))…")
+        AppLogger.info("Fetching subtitles for \(imdbId) (source=\(sourceType.rawValue))…")
         guard !apiKey.isEmpty && apiKey != "YOUR_OS_KEY_HERE" else {
-            Logger.warning("No OpenSubtitles API key configured.")
+            AppLogger.warning("No OpenSubtitles API key configured.")
             return nil
         }
 
@@ -123,7 +124,7 @@ public actor OpenSubtitlesClient {
               let http = response as? HTTPURLResponse, http.statusCode == 200,
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let items = json["data"] as? [[String: Any]] else {
-            Logger.warning("OpenSubtitles search request failed.")
+            AppLogger.warning("OpenSubtitles search request failed.")
             return nil
         }
 
@@ -177,21 +178,21 @@ public actor OpenSubtitlesClient {
         }
 
         if skippedFPS > 0 || skippedHDTV > 0 || skippedHI > 0 {
-            Logger.info("OpenSubtitles: filtered out \(skippedFPS) fps-mismatch, \(skippedHDTV) HDTV, \(skippedHI) hearing-impaired release(s).")
+            AppLogger.info("OpenSubtitles: filtered out \(skippedFPS) fps-mismatch, \(skippedHDTV) HDTV, \(skippedHI) hearing-impaired release(s).")
         }
 
         guard !candidates.isEmpty else {
-            Logger.info("OpenSubtitles: no non-HDTV/non-HI/fps-matched results found.")
+            AppLogger.info("OpenSubtitles: no non-HDTV/non-HI/fps-matched results found.")
             return nil
         }
 
         candidates.sort { ($0.score, $0.downloadCount) > ($1.score, $1.downloadCount) }
         let best = candidates[0]
-        Logger.info("OpenSubtitles: \(candidates.count) result(s), best score=\(best.score) release='\(best.release)'")
+        AppLogger.info("OpenSubtitles: \(candidates.count) result(s), best score=\(best.score) release='\(best.release)'")
 
         let sourceKeywords = (sourceType == .bluray) ? Self.blurayKeywords : Self.dvdKeywords
         if !sourceKeywords.contains(where: { best.release.lowercased().contains($0) }) {
-            Logger.info("No \(sourceType.rawValue)-tagged subtitle release available for this title — using best broadcast/web match instead. Ad-break/cut timing may differ from the disc.")
+            AppLogger.info("No \(sourceType.rawValue)-tagged subtitle release available for this title — using best broadcast/web match instead. Ad-break/cut timing may differ from the disc.")
         }
 
         // Fetch reference transcripts for content verification
@@ -205,34 +206,34 @@ public actor OpenSubtitlesClient {
 
             // Duration check on raw subtitle (end check only)
             if !SubtitleProcessor.durationMatches(srtData: content, videoDuration: videoDuration, mediaType: mediaType, checkStart: false) {
-                Logger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed the duration check — trying next-best release.")
+                AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed the duration check — trying next-best release.")
                 continue
             }
 
             // Content vocabulary check
             if !contentMatches(content: content, references: references) {
-                Logger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed the content check — likely wrong movie/language or bad translation.")
+                AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed the content check — likely wrong movie/language or bad translation.")
                 continue
             }
 
             // Alass alignment check (if MKV file is available)
             if let mkvURL = mkvURL {
                 guard let synced = await processor.runAlass(srtData: content, mkvURL: mkvURL) else {
-                    Logger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed alignment (different cut or alass error) — trying next-best.")
+                    AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed alignment (different cut or alass error) — trying next-best.")
                     continue
                 }
                 if !SubtitleProcessor.durationMatches(srtData: synced, videoDuration: videoDuration, mediaType: mediaType, checkStart: true) {
-                    Logger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed post-alignment start/end check — trying next-best.")
+                    AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed post-alignment start/end check — trying next-best.")
                     continue
                 }
             }
 
-            Logger.info("OpenSubtitles: selected '\(cand.release)' (score=\(cand.score) dl=\(cand.downloadCount) file_id=\(cand.fileId))")
-            Logger.info("Got subtitles from OpenSubtitles.")
+            AppLogger.info("OpenSubtitles: selected '\(cand.release)' (score=\(cand.score) dl=\(cand.downloadCount) file_id=\(cand.fileId))")
+            AppLogger.info("Got subtitles from OpenSubtitles.")
             return content
         }
 
-        Logger.warning("OpenSubtitles: no candidate passed the duration/content/structure checks.")
+        AppLogger.warning("OpenSubtitles: no candidate passed the duration/content/structure checks.")
         return nil
     }
 
@@ -287,13 +288,13 @@ public actor OpenSubtitlesClient {
             } catch {
                 if attempt < 2 {
                     let wait = UInt64((attempt + 1) * 5)
-                    Logger.warning("OpenSubtitles download attempt \(attempt + 1) failed — retrying in \(wait)s…")
+                    AppLogger.warning("OpenSubtitles download attempt \(attempt + 1) failed — retrying in \(wait)s…")
                     try? await Task.sleep(nanoseconds: wait * 1_000_000_000)
                 }
             }
         }
 
-        Logger.warning("OpenSubtitles download failed for '\(release)'.")
+        AppLogger.warning("OpenSubtitles download failed for '\(release)'.")
         return nil
     }
 
@@ -317,7 +318,7 @@ public actor OpenSubtitlesClient {
         }
 
         if !refs.isEmpty {
-            Logger.info("OpenSubtitles: built dialogue reference from \(refs.count) release(s) for content verification.")
+            AppLogger.info("OpenSubtitles: built dialogue reference from \(refs.count) release(s) for content verification.")
         }
         return refs
     }
@@ -363,7 +364,7 @@ public actor OpenSubtitlesClient {
             }
         }
 
-        Logger.info("Subtitle content similarity vs reference: \(String(format: "%.2f", bestSim)) (threshold \(String(format: "%.2f", threshold)))")
+        AppLogger.info("Subtitle content similarity vs reference: \(String(format: "%.2f", bestSim)) (threshold \(String(format: "%.2f", threshold)))")
         return bestSim >= threshold
     }
 }

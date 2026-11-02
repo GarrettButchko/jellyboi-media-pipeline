@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 public struct TrackRemuxer: Sendable {
     private let toolRegistry: ToolRegistry
@@ -31,7 +32,7 @@ public struct TrackRemuxer: Sendable {
 
         let res = try await ProcessRunner.run(executable: mkvpropedit, arguments: args)
         if res.isSuccess {
-            Logger.info("Cleared default flag from \(subTracks.count) embedded subtitle track(s).")
+            AppLogger.info("Cleared default flag from \(subTracks.count) embedded subtitle track(s).")
         }
     }
 
@@ -61,11 +62,11 @@ public struct TrackRemuxer: Sendable {
         let removedAudio = audioTracks.count - keepAudio.count
         let removedSubs = subTracks.count - keepSubs.count
 
-        Logger.info("Keeping \(keepAudio.count) English audio track(s), removing \(removedAudio), removing \(removedSubs) embedded subtitle(s) (keeping \(keepSubs.count)).")
+        AppLogger.info("Keeping \(keepAudio.count) English audio track(s), removing \(removedAudio), removing \(removedSubs) embedded subtitle(s) (keeping \(keepSubs.count)).")
 
         let needsRemux = (removedAudio > 0) || (removedSubs > 0) || (srtURL != nil)
         if !needsRemux {
-            Logger.info("Nothing to strip.")
+            AppLogger.info("Nothing to strip.")
             return
         }
 
@@ -95,18 +96,18 @@ public struct TrackRemuxer: Sendable {
 
         let res = try await ProcessRunner.run(executable: mkvmerge, arguments: cmd, timeout: 600)
         guard res.isSuccess || res.exitCode == 1 else {
-            Logger.warning("mkvmerge strip failed: \(res.stderr.suffix(300))")
+            AppLogger.warning("mkvmerge strip failed: \(res.stderr.suffix(300))")
             return
         }
 
         guard FileManager.default.fileExists(atPath: tmpOut.path) else {
-            Logger.warning("mkvmerge produced no output file — source preserved.")
+            AppLogger.warning("mkvmerge produced no output file — source preserved.")
             return
         }
 
         let size = (try? FileManager.default.attributesOfItem(atPath: tmpOut.path)[.size] as? Int64) ?? 0
         guard size > 0 else {
-            Logger.warning("mkvmerge produced zero-byte output file — source preserved.")
+            AppLogger.warning("mkvmerge produced zero-byte output file — source preserved.")
             return
         }
 
@@ -114,7 +115,7 @@ public struct TrackRemuxer: Sendable {
         try FileManager.default.removeItem(at: fileURL)
         try FileManager.default.moveItem(at: tmpOut, to: fileURL)
 
-        Logger.info("Track strip complete\(srtURL != nil ? " (SRT embedded)" : "").")
+        AppLogger.info("Track strip complete\(srtURL != nil ? " (SRT embedded)" : "").")
     }
 
     // MARK: - Normalize Embedded Subtitles
@@ -142,7 +143,7 @@ public struct TrackRemuxer: Sendable {
                 arguments: ["tracks", fileURL.path, "\(t.id):\(extractedFile.path)"]
             )
             guard extRes.isSuccess, let data = try? Data(contentsOf: extractedFile) else {
-                Logger.warning("mkvextract failed for subtitle track \(t.id) — leaving it as-is.")
+                AppLogger.warning("mkvextract failed for subtitle track \(t.id) — leaving it as-is.")
                 continue
             }
 
@@ -154,7 +155,7 @@ public struct TrackRemuxer: Sendable {
 
         guard !rewritten.isEmpty else { return false }
 
-        Logger.info("Embedded ALL-CAPS SubRip found — converting \(rewritten.count) track(s) to sentence case.")
+        AppLogger.info("Embedded ALL-CAPS SubRip found — converting \(rewritten.count) track(s) to sentence case.")
 
         var normFiles: [URL] = []
         for (i, item) in rewritten.enumerated() {
@@ -195,14 +196,14 @@ public struct TrackRemuxer: Sendable {
         let res = try await ProcessRunner.run(executable: mkvmerge, arguments: cmd, timeout: 600)
         guard res.isSuccess || res.exitCode == 1,
               FileManager.default.fileExists(atPath: tmpOut.path) else {
-            Logger.warning("mkvmerge subtitle normalization failed — leaving embedded subtitles as-is.")
+            AppLogger.warning("mkvmerge subtitle normalization failed — leaving embedded subtitles as-is.")
             return false
         }
 
         try FileManager.default.removeItem(at: fileURL)
         try FileManager.default.moveItem(at: tmpOut, to: fileURL)
 
-        Logger.info("Embedded ALL-CAPS SubRip normalized to sentence case.")
+        AppLogger.info("Embedded ALL-CAPS SubRip normalized to sentence case.")
         return true
     }
 }

@@ -1,8 +1,20 @@
 import Foundation
 import UserNotifications
+import LoggingKit
 
 public protocol NotificationHandler: Sendable {
     func notify(title: String, message: String, subtitle: String?) async
+}
+
+public enum Notifier {
+    nonisolated(unsafe) public static var handler: NotificationHandler = CLINotificationHandler.shared
+
+    public static func notify(title: String, message: String, subtitle: String? = nil) {
+        let handler = handler
+        Task {
+            await handler.notify(title: title, message: message, subtitle: subtitle)
+        }
+    }
 }
 
 /// Standard macOS Notification Center handler (publish-safe, App Store & Notarization compliant)
@@ -47,6 +59,6 @@ public struct CLINotificationHandler: NotificationHandler {
 
     public func notify(title: String, message: String, subtitle: String? = nil) async {
         let subStr = subtitle != nil ? " (\(subtitle!))" : ""
-        Logger.info("[Notification] \(title): \(message)\(subStr)")
+        AppLogger.info("[Notification] \(title): \(message)\(subStr)")
     }
 }

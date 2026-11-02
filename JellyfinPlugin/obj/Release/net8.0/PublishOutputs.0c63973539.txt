@@ -1,0 +1,4 @@
+/src/bin/Publish/Jellyfin.Plugin.FileToRemux.dll
+/src/bin/Publish/Jellyfin.Plugin.FileToRemux.deps.json
+/src/bin/Publish/Jellyfin.Plugin.FileToRemux.pdb
+/src/bin/Publish/Jellyfin.Plugin.FileToRemux.xml

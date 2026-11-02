@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 public struct OMDbClient: Sendable {
     public let apiKey: String
@@ -152,7 +153,7 @@ public struct OMDbClient: Sendable {
     ) async -> TVEpisodeMatch? {
         let key = "\(seriesImdbId)_\(season)_\(episode)"
         if let override = customEpisodeOverrides[key] {
-            Logger.info("Using custom episode override for \(key): \(override.title) [\(override.imdbId)]")
+            AppLogger.info("Using custom episode override for \(key): \(override.title) [\(override.imdbId)]")
             return TVEpisodeMatch(
                 seriesTitle: seriesTitle,
                 seriesYear: seriesYear,
@@ -232,14 +233,14 @@ public struct OMDbClient: Sendable {
             // Stage 1: Exact lookup with year hint if present
             if let year = yearInt {
                 if let match = await lookup(title: query, year: year, type: "movie") {
-                    Logger.info("OMDb (exact + year): \(match.title) (\(match.year)) [\(match.imdbId)]")
+                    AppLogger.info("OMDb (exact + year): \(match.title) (\(match.year)) [\(match.imdbId)]")
                     return match
                 }
             }
 
             // Stage 2: Exact lookup without year hint
             if let match = await lookup(title: query, type: "movie") {
-                Logger.info("OMDb (exact): \(match.title) (\(match.year)) [\(match.imdbId)]")
+                AppLogger.info("OMDb (exact): \(match.title) (\(match.year)) [\(match.imdbId)]")
                 return match
             }
 
@@ -253,7 +254,7 @@ public struct OMDbClient: Sendable {
                     inspector: inspector,
                     fileURL: fileURL
                 ) {
-                    Logger.info("OMDb (search + year): \(best.title) (\(best.year)) [\(best.imdbId)] votes=\(best.votes)")
+                    AppLogger.info("OMDb (search + year): \(best.title) (\(best.year)) [\(best.imdbId)] votes=\(best.votes)")
                     return MovieMatch(
                         title: best.title,
                         year: best.year,
@@ -273,7 +274,7 @@ public struct OMDbClient: Sendable {
                 inspector: inspector,
                 fileURL: fileURL
             ) {
-                Logger.info("OMDb (search): \(best.title) (\(best.year)) [\(best.imdbId)] votes=\(best.votes) runtime=\(best.runtimeMinutes ?? 0)")
+                AppLogger.info("OMDb (search): \(best.title) (\(best.year)) [\(best.imdbId)] votes=\(best.votes) runtime=\(best.runtimeMinutes ?? 0)")
                 return MovieMatch(
                     title: best.title,
                     year: best.year,
@@ -345,7 +346,7 @@ public struct OMDbClient: Sendable {
                 }
             } catch {
                 if attempt == maxRetries {
-                    Logger.error("OMDb request failed after \(maxRetries) attempts: \(error.localizedDescription)")
+                    AppLogger.error("OMDb request failed after \(maxRetries) attempts: \(error.localizedDescription)")
                 }
             }
             if attempt < maxRetries {

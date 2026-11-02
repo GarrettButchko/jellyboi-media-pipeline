@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 public struct ToolStatus: Sendable, Identifiable {
     public var id: String { name }
@@ -114,9 +115,9 @@ public struct ToolRegistry: Sendable {
     public func logDiagnostics() {
         for tool in allToolsStatus {
             if let path = tool.path {
-                Logger.debug("Found \(tool.name): \(path)")
+                AppLogger.debug("Found \(tool.name): \(path)")
             } else {
-                Logger.warning("Tool not found: \(tool.name) — \(tool.purpose)")
+                AppLogger.warning("Tool not found: \(tool.name) — \(tool.purpose)")
             }
         }
     }

@@ -1,0 +1,14 @@
+/src/bin/Release/net8.0/Jellyfin.Plugin.FileToRemux.deps.json
+/src/bin/Release/net8.0/Jellyfin.Plugin.FileToRemux.dll
+/src/bin/Release/net8.0/Jellyfin.Plugin.FileToRemux.pdb
+/src/bin/Release/net8.0/Jellyfin.Plugin.FileToRemux.xml
+/src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.csproj.AssemblyReference.cache
+/src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.GeneratedMSBuildEditorConfig.editorconfig
+/src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.AssemblyInfoInputs.cache
+/src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.AssemblyInfo.cs
+/src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.csproj.CoreCompileInputs.cache
+/src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.dll
+/src/obj/Release/net8.0/refint/Jellyfin.Plugin.FileToRemux.dll
+/src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.xml
+/src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.pdb
+/src/obj/Release/net8.0/ref/Jellyfin.Plugin.FileToRemux.dll

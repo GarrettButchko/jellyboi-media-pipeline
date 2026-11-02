@@ -10,23 +10,26 @@
       "Base",
     ],
   },
+  "packages": [
+    {
+      "kind": "local",
+      "path": "../../Apps/iOS/Packages/LoggingKit",
+    }, {
+      "kind": "local",
+      "path": "../../Apps/iOS/Packages/BaseColors",
+    },
+  ],
   "files": [
     { "kind": "folder", "path": "MyTool", "target-membership": [ "MyTool" ] },
     { "kind": "folder", "path": "RipPipelineEngine", "target-membership": [ "MyTool", "RipPipelineApp", "RipPipelineEngine" ] },
-    { "kind": "folder", "path": "RipPipelineEngineTests", "target-membership": [ "RipPipelineEngineTests" ] },
     { "kind": "folder", "path": "RipPipelineApp", "target-membership": [ "RipPipelineApp" ] },
-    { "kind": "folder", "path": "RipPipelineAppTests", "target-membership": [ "RipPipelineAppTests" ] },
-    { "kind": "folder", "path": "RipPipelineAppUITests", "target-membership": [ "RipPipelineAppUITests" ] },
     {
       "kind": "group",
       "name": "Products",
       "children": [
         { "path": "<PRODUCTS>/MyTool", "id": "000000000000000000000120", "type": "compiled.mach-o.executable", "index": false },
-        { "path": "<PRODUCTS>/RipPipelineEngine.framework", "id": "21CCB8F7309539D400A03833", "type": "wrapper.framework", "index": false, "target-membership": [ "RipPipelineEngineTests/frameworks" ] },
-        { "path": "<PRODUCTS>/RipPipelineEngineTests.xctest", "id": "21CCB8FF309539D400A03833", "type": "wrapper.cfbundle", "index": false },
+        { "path": "<PRODUCTS>/RipPipelineEngine.framework", "id": "21CCB8F7309539D400A03833", "type": "wrapper.framework", "index": false },
         { "path": "<PRODUCTS>/RipPipelineApp.app", "id": "21CCB90E309539D800A03833", "type": "wrapper.application", "index": false },
-        { "path": "<PRODUCTS>/RipPipelineAppTests.xctest", "id": "21CCB91A309539D900A03833", "type": "wrapper.cfbundle", "index": false },
-        { "path": "<PRODUCTS>/RipPipelineAppUITests.xctest", "id": "21CCB924309539D900A03833", "type": "wrapper.cfbundle", "index": false },
       ],
     },
   ],
@@ -39,6 +42,12 @@
       "build-phases": [
         "compile-sources",
         "frameworks",
+      ],
+      "package-product-members": [
+        {
+          "product-name": "LoggingKit",
+          "build-phase": { "build-phase": "frameworks" },
+        },
       ],
       "build-settings": {
         "CODE_SIGN_STYLE": "Automatic",
@@ -61,6 +70,12 @@
         "compile-sources",
         "frameworks",
         "resources",
+      ],
+      "package-product-members": [
+        {
+          "product-name": "LoggingKit",
+          "build-phase": { "build-phase": "frameworks" },
+        },
       ],
       "build-settings": {
         "BUILD_LIBRARY_FOR_DISTRIBUTION": "YES",
@@ -97,33 +112,6 @@
         "VERSION_INFO_PREFIX": "",
       },
     }, {
-      "name": "RipPipelineEngineTests",
-      "id": "21CCB8FE309539D400A03833",
-      "product": "Products/RipPipelineEngineTests.xctest",
-      "product-type": "bundle.unit-test",
-      "dependencies": [
-        "RipPipelineEngine",
-      ],
-      "build-phases": [
-        "compile-sources",
-        "frameworks",
-        "resources",
-      ],
-      "build-settings": {
-        "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "1",
-        "GENERATE_INFOPLIST_FILE": "YES",
-        "MARKETING_VERSION": "1.0",
-        "PRODUCT_BUNDLE_IDENTIFIER": "com.yourcompany.RipPipelineEngineTests",
-        "PRODUCT_NAME": "$(TARGET_NAME)",
-        "SDKROOT": "macosx",
-        "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
-        "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
-        "SWIFT_EMIT_LOC_STRINGS": "NO",
-        "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
-        "SWIFT_VERSION": "5.0",
-      },
-    }, {
       "name": "RipPipelineApp",
       "id": "21CCB90D309539D800A03833",
       "product": "Products/RipPipelineApp.app",
@@ -132,6 +120,15 @@
         "compile-sources",
         "frameworks",
         "resources",
+      ],
+      "package-product-members": [
+        {
+          "product-name": "BaseColors",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "product-name": "LoggingKit",
+          "build-phase": { "build-phase": "frameworks" },
+        },
       ],
       "build-settings": {
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
@@ -159,66 +156,6 @@
         "SWIFT_EMIT_LOC_STRINGS": "YES",
         "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
         "SWIFT_VERSION": "5.0",
-      },
-    }, {
-      "name": "RipPipelineAppTests",
-      "id": "21CCB919309539D900A03833",
-      "product": "Products/RipPipelineAppTests.xctest",
-      "product-type": "bundle.unit-test",
-      "test-host-target": "RipPipelineApp",
-      "dependencies": [
-        "RipPipelineApp",
-      ],
-      "build-phases": [
-        "compile-sources",
-        "frameworks",
-        "resources",
-      ],
-      "build-settings": {
-        "BUNDLE_LOADER": "$(TEST_HOST)",
-        "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "1",
-        "GENERATE_INFOPLIST_FILE": "YES",
-        "MACOSX_DEPLOYMENT_TARGET": "27.2",
-        "MARKETING_VERSION": "1.0",
-        "PRODUCT_BUNDLE_IDENTIFIER": "com.yourcompany.RipPipelineAppTests",
-        "PRODUCT_NAME": "$(TARGET_NAME)",
-        "SDKROOT": "macosx",
-        "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
-        "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
-        "SWIFT_EMIT_LOC_STRINGS": "NO",
-        "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
-        "SWIFT_VERSION": "5.0",
-        "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/RipPipelineApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RipPipelineApp",
-      },
-    }, {
-      "name": "RipPipelineAppUITests",
-      "id": "21CCB923309539D900A03833",
-      "product": "Products/RipPipelineAppUITests.xctest",
-      "product-type": "bundle.ui-testing",
-      "test-host-target": "RipPipelineApp",
-      "dependencies": [
-        "RipPipelineApp",
-      ],
-      "build-phases": [
-        "compile-sources",
-        "frameworks",
-        "resources",
-      ],
-      "build-settings": {
-        "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "1",
-        "GENERATE_INFOPLIST_FILE": "YES",
-        "MARKETING_VERSION": "1.0",
-        "PRODUCT_BUNDLE_IDENTIFIER": "com.yourcompany.RipPipelineAppUITests",
-        "PRODUCT_NAME": "$(TARGET_NAME)",
-        "SDKROOT": "macosx",
-        "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
-        "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
-        "SWIFT_EMIT_LOC_STRINGS": "NO",
-        "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
-        "SWIFT_VERSION": "5.0",
-        "TEST_TARGET_NAME": "RipPipelineApp",
       },
     },
   ],

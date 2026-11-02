@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 public struct Pipeline: Sendable {
     public let config: PipelineConfig
@@ -51,7 +52,7 @@ public struct Pipeline: Sendable {
         pollInterval: Int = 3,
         delegate: PipelineDelegate? = nil
     ) async -> Bool {
-        Logger.info("Waiting for write to complete: \(fileURL.lastPathComponent)")
+        AppLogger.info("Waiting for write to complete: \(fileURL.lastPathComponent)")
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
             fileURL: fileURL,
             stage: .waitingForWrite,
@@ -67,7 +68,7 @@ public struct Pipeline: Sendable {
             try? await Task.sleep(nanoseconds: UInt64(pollInterval) * 1_000_000_000)
             guard let attrs = try? FileManager.default.attributesOfItem(atPath: fileURL.path),
                   let currentSize = attrs[.size] as? Int64 else {
-                Logger.warning("File disappeared, aborting.")
+                AppLogger.warning("File disappeared, aborting.")
                 return false
             }
 
@@ -80,7 +81,7 @@ public struct Pipeline: Sendable {
         }
 
         let gigabytes = Double(prevSize) / 1_000_000_000.0
-        Logger.info("Write complete — \(String(format: "%.1f", gigabytes)) GB")
+        AppLogger.info("Write complete — \(String(format: "%.1f", gigabytes)) GB")
         return true
     }
 
@@ -122,8 +123,8 @@ public struct Pipeline: Sendable {
         var workingURL = fileURL
         var fileName = workingURL.lastPathComponent
 
-        Logger.info("=== Processing: \(fileName) ===")
-        Logger.notify(title: "Rip Pipeline", message: "Processing: \(fileName)")
+        AppLogger.info("=== Processing: \(fileName) ===")
+        Notifier.notify(title: "Rip Pipeline", message: "Processing: \(fileName)")
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
             fileURL: fileURL,
@@ -142,8 +143,8 @@ public struct Pipeline: Sendable {
         }
 
         guard !config.omdbKey.isEmpty else {
-            Logger.error("OMDb API key not configured. Set via preferences or config file.")
-            Logger.notify(title: "Rip Pipeline ⚠️", message: "OMDb API key not configured.")
+            AppLogger.error("OMDb API key not configured. Set via preferences or config file.")
+            Notifier.notify(title: "Rip Pipeline ⚠️", message: "OMDb API key not configured.")
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                 fileURL: fileURL,
                 stage: .failed,
@@ -155,7 +156,7 @@ public struct Pipeline: Sendable {
         // 1. Raw Disc Rip Recognition & Prompting
         let discCheck = DiscRipRecognizer.analyze(fileURL: workingURL)
         if discCheck.isDiscRip, let promptProvider = titlePromptProvider {
-            Logger.info("Raw disc rip detected (\(discCheck.reason?.rawValue ?? "disc")): \(fileName)")
+            AppLogger.info("Raw disc rip detected (\(discCheck.reason?.rawValue ?? "disc")): \(fileName)")
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                 fileURL: fileURL,
                 stage: .awaitingTitle,
@@ -169,7 +170,7 @@ public struct Pipeline: Sendable {
                 reason: discCheck.reason ?? .genericMakeMKV
             ), !userTitle.trimmingCharacters(in: .whitespaces).isEmpty {
                 let trimmedTitle = userTitle.trimmingCharacters(in: .whitespaces)
-                Logger.info("User provided accurate title: '\(trimmedTitle)'")
+                AppLogger.info("User provided accurate title: '\(trimmedTitle)'")
 
                 // Rename file on disk so future steps and file system accurately reflect the media
                 let dir = workingURL.deletingLastPathComponent()
@@ -181,7 +182,7 @@ public struct Pipeline: Sendable {
                     if (try? FileManager.default.moveItem(at: workingURL, to: targetURL)) != nil {
                         workingURL = targetURL
                         fileName = workingURL.lastPathComponent
-                        Logger.info("Renamed file to: \(fileName)")
+                        AppLogger.info("Renamed file to: \(fileName)")
                     }
                 }
             }
@@ -195,7 +196,7 @@ public struct Pipeline: Sendable {
         ))
 
         let sourceType = (try? await inspector.detectSourceType(fileURL: workingURL)) ?? .bluray
-        Logger.notify(title: "Rip Pipeline", message: fileName, subtitle: "Detected: \(sourceType.displayTitle)")
+        Notifier.notify(title: "Rip Pipeline", message: fileName, subtitle: "Detected: \(sourceType.displayTitle)")
 
         // TV Episode detection: filename contains SxxExx
         let tvRegex = try? NSRegularExpression(pattern: #"S(\d{2})E(\d{2})"#, options: .caseInsensitive)
@@ -246,7 +247,7 @@ public struct Pipeline: Sendable {
 
         // If no match found, prompt user once more for an accurate title or IMDb ID
         if matchedMovie == nil, let promptProvider = titlePromptProvider {
-            Logger.warning("No automatic IMDb match for '\(parsed.title)'. Requesting user input…")
+            AppLogger.warning("No automatic IMDb match for '\(parsed.title)'. Requesting user input…")
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                 fileURL: fileURL,
                 stage: .awaitingTitle,
@@ -290,8 +291,8 @@ public struct Pipeline: Sendable {
 
         guard let movie = matchedMovie else {
             logUnmatched(fileURL: workingURL)
-            Logger.error("No IMDb match — logged to \(logDirectory.path)/unmatched.log")
-            Logger.notify(title: "Rip Pipeline ⚠️", message: "No IMDb match for '\(parsed.title)'")
+            AppLogger.error("No IMDb match — logged to \(logDirectory.path)/unmatched.log")
+            Notifier.notify(title: "Rip Pipeline ⚠️", message: "No IMDb match for '\(parsed.title)'")
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                 fileURL: fileURL,
                 stage: .failed,
@@ -300,7 +301,7 @@ public struct Pipeline: Sendable {
             return
         }
 
-        Logger.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Matched: \(movie.imdbId)")
+        Notifier.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Matched: \(movie.imdbId)")
 
         let preferExtended: Bool = {
             let cutPattern = #"extended|redux|director'?s cut|unrated|special edition"#
@@ -318,10 +319,11 @@ public struct Pipeline: Sendable {
         ))
 
         // Parallel tasks: Crop detection + duration extraction + embedded subtitle scan
-        async let cropTask = try? cropDetector.detectCrop(fileURL: workingURL)
-        async let durationTask = try? inspector.getDecodedDuration(fileURL: workingURL)
-        async let hasEmbeddedSubRipTask = try? inspector.hasEnglishSubRipSubtitle(fileURL: workingURL)
-        async let videoFPSTask = try? inspector.getVideoFPS(fileURL: workingURL)
+        let mediaURL = workingURL
+        async let cropTask = try? cropDetector.detectCrop(fileURL: mediaURL)
+        async let durationTask = try? inspector.getDecodedDuration(fileURL: mediaURL)
+        async let hasEmbeddedSubRipTask = try? inspector.hasEnglishSubRipSubtitle(fileURL: mediaURL)
+        async let videoFPSTask = try? inspector.getVideoFPS(fileURL: mediaURL)
 
         let hasEmbeddedSubRip = (await hasEmbeddedSubRipTask) ?? false
         let videoDuration = await durationTask
@@ -331,7 +333,7 @@ public struct Pipeline: Sendable {
         var embeddedSrt = false
 
         if !forceSubs && hasEmbeddedSubRip {
-            Logger.info("Embedded English SubRip subtitle found — keeping it.")
+            AppLogger.info("Embedded English SubRip subtitle found — keeping it.")
             embeddedSrt = true
         } else {
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -361,7 +363,7 @@ public struct Pipeline: Sendable {
 
         if embeddedSrt {
             normalizedEmbedded = (try? await trackRemuxer.normalizeEmbeddedSubtitles(fileURL: workingURL)) ?? false
-            Logger.notify(
+            Notifier.notify(
                 title: "Rip Pipeline",
                 message: "\(movie.title) (\(movie.year))",
                 subtitle: normalizedEmbedded ? "Embedded ALL-CAPS subtitles normalized" : "Embedded subtitles kept"
@@ -382,10 +384,10 @@ public struct Pipeline: Sendable {
             if (try? subData.write(to: tmp)) != nil {
                 srtTmpURL = tmp
             }
-            Logger.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Subtitles downloaded & synced")
+            Notifier.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Subtitles downloaded & synced")
         } else {
             logUnmatchedSubs(fileURL: workingURL, imdbId: movie.imdbId, sourceType: sourceType)
-            Logger.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "No subtitles found")
+            Notifier.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "No subtitles found")
         }
 
         defer {
@@ -403,7 +405,7 @@ public struct Pipeline: Sendable {
 
         try? await trackRemuxer.stripTracks(fileURL: workingURL, srtURL: srtTmpURL)
         try? await trackRemuxer.clearSubtitleDefaults(fileURL: workingURL)
-        Logger.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Tracks remuxed")
+        Notifier.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Tracks remuxed")
 
         if let validCrop = crop {
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -413,7 +415,7 @@ public struct Pipeline: Sendable {
                 detail: "Writing crop metadata into MKV header…"
             ))
             try? await cropDetector.applyCrop(fileURL: workingURL, crop: validCrop)
-            Logger.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Crop metadata applied")
+            Notifier.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Crop metadata applied")
         }
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -449,8 +451,55 @@ public struct Pipeline: Sendable {
         bcf.countStyle = .file
         let sizeStr = bcf.string(fromByteCount: destSize)
 
-        Logger.info("Finished: \(dest.lastPathComponent) (\(sizeStr))")
-        Logger.notify(title: "Rip Pipeline ✓", message: "\(movie.title) (\(movie.year))", subtitle: "\(sizeStr) — \(subStatus)")
+        // Direct Jellyfin Server Upload (if enabled and configured)
+        if config.jellyfinUploadEnabled && !config.jellyfinServerURL.trimmingCharacters(in: .whitespaces).isEmpty {
+            await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
+                fileURL: fileURL,
+                destinationURL: dest,
+                stage: .uploadingToJellyfin,
+                progressFraction: 0.97,
+                detail: "Streaming to Jellyfin server…"
+            ))
+            let client = JellyfinClient()
+            var uploadError: Error?
+            do {
+                try await client.uploadMovie(
+                    fileURL: dest,
+                    title: movie.title,
+                    year: movie.year,
+                    imdbId: movie.imdbId,
+                    libraryId: config.jellyfinMovieLibraryId.isEmpty ? nil : config.jellyfinMovieLibraryId,
+                    serverPath: config.jellyfinMovieServerPath.isEmpty ? nil : config.jellyfinMovieServerPath,
+                    serverURL: config.jellyfinServerURL,
+                    apiKey: config.jellyfinApiKey
+                )
+                AppLogger.info("Direct Jellyfin upload completed: \(dest.lastPathComponent)")
+            } catch {
+                // A cancelled task means the user hit Stop during the upload — keep the
+                // queue item in the cancelled state instead of treating it as a failure.
+                if Task.isCancelled {
+                    AppLogger.info("Jellyfin upload cancelled: \(dest.lastPathComponent)")
+                    return
+                }
+                AppLogger.error("Jellyfin upload failed: \(error.localizedDescription)")
+                uploadError = error
+            }
+
+            // Never fall through to "completed" if the upload did not actually finish.
+            if let uploadError {
+                await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
+                    fileURL: fileURL,
+                    destinationURL: dest,
+                    stage: .failed,
+                    progressFraction: 0.97,
+                    detail: "Jellyfin upload failed: \(uploadError.localizedDescription)"
+                ))
+                return
+            }
+        }
+
+        AppLogger.info("Finished: \(dest.lastPathComponent) (\(sizeStr))")
+        Notifier.notify(title: "Rip Pipeline ✓", message: "\(movie.title) (\(movie.year))", subtitle: "\(sizeStr) — \(subStatus)")
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
             fileURL: fileURL,
@@ -485,7 +534,7 @@ public struct Pipeline: Sendable {
             .replacingOccurrences(of: ".", with: " ")
             .trimmingCharacters(in: CharacterSet(charactersIn: " -"))
 
-        Logger.info("TV episode detected: '\(seriesRaw)' S\(String(format: "%02d", season))E\(String(format: "%02d", episode))")
+        AppLogger.info("TV episode detected: '\(seriesRaw)' S\(String(format: "%02d", season))E\(String(format: "%02d", episode))")
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
             fileURL: fileURL,
@@ -496,8 +545,8 @@ public struct Pipeline: Sendable {
 
         guard let series = await omdbClient.lookupSeries(title: seriesRaw) else {
             logUnmatched(fileURL: activeURL)
-            Logger.error("No IMDb series match — logged to unmatched.log")
-            Logger.notify(title: "Rip Pipeline ⚠️", message: "No IMDb series match for '\(seriesRaw)'")
+            AppLogger.error("No IMDb series match — logged to unmatched.log")
+            Notifier.notify(title: "Rip Pipeline ⚠️", message: "No IMDb series match for '\(seriesRaw)'")
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                 fileURL: fileURL,
                 stage: .failed,
@@ -514,8 +563,8 @@ public struct Pipeline: Sendable {
             episode: episode
         ) else {
             logUnmatched(fileURL: activeURL)
-            Logger.error("No IMDb episode match — logged to unmatched.log")
-            Logger.notify(title: "Rip Pipeline ⚠️", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))")
+            AppLogger.error("No IMDb episode match — logged to unmatched.log")
+            Notifier.notify(title: "Rip Pipeline ⚠️", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))")
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                 fileURL: fileURL,
                 stage: .failed,
@@ -524,7 +573,7 @@ public struct Pipeline: Sendable {
             return
         }
 
-        Logger.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Matched: \(ep.episodeTitle)")
+        Notifier.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Matched: \(ep.episodeTitle)")
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
             fileURL: fileURL,
@@ -546,7 +595,7 @@ public struct Pipeline: Sendable {
         var embeddedSrt = false
 
         if !forceSubs && hasEmbeddedSubRip {
-            Logger.info("Embedded English SubRip subtitle found — keeping it.")
+            AppLogger.info("Embedded English SubRip subtitle found — keeping it.")
             embeddedSrt = true
         } else {
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -575,7 +624,7 @@ public struct Pipeline: Sendable {
 
         if embeddedSrt {
             normalizedEmbedded = (try? await trackRemuxer.normalizeEmbeddedSubtitles(fileURL: activeURL)) ?? false
-            Logger.notify(
+            Notifier.notify(
                 title: "Rip Pipeline",
                 message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))",
                 subtitle: normalizedEmbedded ? "Embedded ALL-CAPS subtitles normalized" : "Embedded subtitles kept"
@@ -601,10 +650,10 @@ public struct Pipeline: Sendable {
             if (try? subData.write(to: tmp)) != nil {
                 srtTmpURL = tmp
             }
-            Logger.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Subtitles downloaded & synced")
+            Notifier.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Subtitles downloaded & synced")
         } else {
             logUnmatchedSubs(fileURL: activeURL, imdbId: ep.episodeImdbId, sourceType: sourceType)
-            Logger.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "No subtitles found")
+            Notifier.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "No subtitles found")
         }
 
         defer {
@@ -622,7 +671,7 @@ public struct Pipeline: Sendable {
 
         try? await trackRemuxer.stripTracks(fileURL: activeURL, srtURL: srtTmpURL)
         try? await trackRemuxer.clearSubtitleDefaults(fileURL: activeURL)
-        Logger.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Tracks remuxed")
+        Notifier.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Tracks remuxed")
 
         if let validCrop = crop {
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -632,7 +681,7 @@ public struct Pipeline: Sendable {
                 detail: "Applying crop metadata…"
             ))
             try? await cropDetector.applyCrop(fileURL: activeURL, crop: validCrop)
-            Logger.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Crop metadata applied")
+            Notifier.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Crop metadata applied")
         }
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -671,15 +720,65 @@ public struct Pipeline: Sendable {
         bcf.countStyle = .file
         let sizeStr = bcf.string(fromByteCount: destSize)
 
-        Logger.info("Finished: \(dest.lastPathComponent) (\(sizeStr))")
-        Logger.notify(title: "Rip Pipeline ✓", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "\(sizeStr) — \(subStatus)")
+        // Direct Jellyfin Server Upload (if enabled and configured)
+        if config.jellyfinUploadEnabled && !config.jellyfinServerURL.trimmingCharacters(in: .whitespaces).isEmpty {
+            await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
+                fileURL: fileURL,
+                destinationURL: dest,
+                stage: .uploadingToJellyfin,
+                progressFraction: 0.97,
+                detail: "Streaming episode to Jellyfin server…"
+            ))
+            let client = JellyfinClient()
+            var uploadError: Error?
+            do {
+                try await client.uploadEpisode(
+                    fileURL: dest,
+                    seriesTitle: series.title,
+                    seriesYear: series.year,
+                    seriesImdbId: series.imdbId,
+                    season: season,
+                    episode: episode,
+                    episodeTitle: ep.episodeTitle,
+                    libraryId: config.jellyfinTvLibraryId.isEmpty ? nil : config.jellyfinTvLibraryId,
+                    serverPath: config.jellyfinTvServerPath.isEmpty ? nil : config.jellyfinTvServerPath,
+                    serverURL: config.jellyfinServerURL,
+                    apiKey: config.jellyfinApiKey
+                )
+                AppLogger.info("Direct Jellyfin episode upload completed: \(dest.lastPathComponent)")
+            } catch {
+                // A cancelled task means the user hit Stop during the upload — keep the
+                // queue item in the cancelled state instead of treating it as a failure.
+                if Task.isCancelled {
+                    AppLogger.info("Jellyfin upload cancelled: \(dest.lastPathComponent)")
+                    return
+                }
+                AppLogger.error("Jellyfin upload failed: \(error.localizedDescription)")
+                uploadError = error
+            }
+
+            // Never fall through to "completed" if the upload did not actually finish.
+            if let uploadError {
+                await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
+                    fileURL: fileURL,
+                    destinationURL: dest,
+                    stage: .failed,
+                    progressFraction: 0.97,
+                    detail: "Jellyfin upload failed: \(uploadError.localizedDescription)"
+                ))
+                return
+            }
+        }
+
+        AppLogger.info("Finished: \(dest.lastPathComponent) (\(sizeStr))")
+        Notifier.notify(title: "Rip Pipeline ✓", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "\(sizeStr) — \(subStatus)")
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
             fileURL: fileURL,
             destinationURL: dest,
             stage: .completed,
             progressFraction: 1.0,
-            detail: "Successfully processed (\(sizeStr), \(subStatus))"
+            detail: "Successfully processed (\(subStatus))"
         ))
     }
 }

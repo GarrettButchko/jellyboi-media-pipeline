@@ -1,4 +1,5 @@
 import Foundation
+import LoggingKit
 
 /// Fast metadata inspection, source detection, and duration probing for media files.
 public struct MediaInspector: Sendable {
@@ -40,7 +41,7 @@ public struct MediaInspector: Sendable {
         let isSdHeight = height > 0 && height <= 576
         let result: SourceType = (isMpeg2 || isSdHeight) ? .dvd : .bluray
 
-        Logger.info("Source type: \(result == .dvd ? "DVD" : "BLURAY")  (codec=\(codec) height=\(height))")
+        AppLogger.info("Source type: \(result == .dvd ? "DVD" : "BLURAY")  (codec=\(codec) height=\(height))")
         return result
     }
 
@@ -84,7 +85,7 @@ public struct MediaInspector: Sendable {
 
         let sanitized = TitleSanitizer.sanitize(rawTitle: rawTitle)
         let yearString = sanitized.year != nil ? String(sanitized.year!) : nil
-        Logger.info("Disc title: \(sanitized.title)\(yearString != nil ? " (\(yearString!))" : "")")
+        AppLogger.info("Disc title: \(sanitized.title)\(yearString != nil ? " (\(yearString!))" : "")")
         return ParsedTitle(
             title: sanitized.title,
             yearHint: yearString,

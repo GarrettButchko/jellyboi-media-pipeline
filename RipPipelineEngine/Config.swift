@@ -15,6 +15,15 @@ public struct PipelineConfig: Sendable {
     public var subtitleLanguage: String
     public var subtitleFormat: String
 
+    // Jellyfin Direct Upload Configuration
+    public var jellyfinServerURL: String
+    public var jellyfinApiKey: String
+    public var jellyfinUploadEnabled: Bool
+    public var jellyfinMovieLibraryId: String
+    public var jellyfinTvLibraryId: String
+    public var jellyfinMovieServerPath: String
+    public var jellyfinTvServerPath: String
+
     public init(
         watchDir: URL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Movies/Rips"),
         libraryDir: URL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Movies/Movies"),
@@ -25,7 +34,14 @@ public struct PipelineConfig: Sendable {
         openSubtitlesUsername: String = "",
         openSubtitlesPassword: String = "",
         subtitleLanguage: String = "en",
-        subtitleFormat: String = "srt"
+        subtitleFormat: String = "srt",
+        jellyfinServerURL: String = "",
+        jellyfinApiKey: String = "",
+        jellyfinUploadEnabled: Bool = false,
+        jellyfinMovieLibraryId: String = "",
+        jellyfinTvLibraryId: String = "",
+        jellyfinMovieServerPath: String = "",
+        jellyfinTvServerPath: String = ""
     ) {
         self.watchDir = watchDir
         self.libraryDir = libraryDir
@@ -37,6 +53,13 @@ public struct PipelineConfig: Sendable {
         self.openSubtitlesPassword = openSubtitlesPassword
         self.subtitleLanguage = subtitleLanguage
         self.subtitleFormat = subtitleFormat
+        self.jellyfinServerURL = jellyfinServerURL
+        self.jellyfinApiKey = jellyfinApiKey
+        self.jellyfinUploadEnabled = jellyfinUploadEnabled
+        self.jellyfinMovieLibraryId = jellyfinMovieLibraryId
+        self.jellyfinTvLibraryId = jellyfinTvLibraryId
+        self.jellyfinMovieServerPath = jellyfinMovieServerPath
+        self.jellyfinTvServerPath = jellyfinTvServerPath
     }
 
     /// Load configuration by searching UserDefaults (app settings), config files, and environment variables
@@ -85,6 +108,27 @@ public struct PipelineConfig: Sendable {
         if let tvLib = defaults.string(forKey: "tvLibraryDir"), !tvLib.isEmpty {
             config.tvLibraryDir = URL(fileURLWithPath: (tvLib as NSString).expandingTildeInPath)
         }
+        if let jfURL = defaults.string(forKey: "jellyfinServerURL"), !jfURL.isEmpty {
+            config.jellyfinServerURL = jfURL
+        }
+        if let jfKey = defaults.string(forKey: "jellyfinApiKey"), !jfKey.isEmpty {
+            config.jellyfinApiKey = jfKey
+        }
+        if defaults.object(forKey: "jellyfinUploadEnabled") != nil {
+            config.jellyfinUploadEnabled = defaults.bool(forKey: "jellyfinUploadEnabled")
+        }
+        if let jfMovieLib = defaults.string(forKey: "jellyfinMovieLibraryId") {
+            config.jellyfinMovieLibraryId = jfMovieLib
+        }
+        if let jfTvLib = defaults.string(forKey: "jellyfinTvLibraryId") {
+            config.jellyfinTvLibraryId = jfTvLib
+        }
+        if let jfMoviePath = defaults.string(forKey: "jellyfinMovieServerPath") {
+            config.jellyfinMovieServerPath = jfMoviePath
+        }
+        if let jfTvPath = defaults.string(forKey: "jellyfinTvServerPath") {
+            config.jellyfinTvServerPath = jfTvPath
+        }
 
         // 3. Override with environment variables
         let env = ProcessInfo.processInfo.environment
@@ -93,6 +137,12 @@ public struct PipelineConfig: Sendable {
         }
         if let osKey = env["OPENSUBTITLES_API_KEY"], !osKey.isEmpty {
             config.openSubtitlesKey = osKey
+        }
+        if let jfURL = env["JELLYFIN_SERVER_URL"], !jfURL.isEmpty {
+            config.jellyfinServerURL = jfURL
+        }
+        if let jfKey = env["JELLYFIN_API_KEY"], !jfKey.isEmpty {
+            config.jellyfinApiKey = jfKey
         }
 
         return config
@@ -108,6 +158,13 @@ public struct PipelineConfig: Sendable {
         defaults.set(watchDir.path, forKey: "watchDir")
         defaults.set(libraryDir.path, forKey: "libraryDir")
         defaults.set(tvLibraryDir.path, forKey: "tvLibraryDir")
+        defaults.set(jellyfinServerURL, forKey: "jellyfinServerURL")
+        defaults.set(jellyfinApiKey, forKey: "jellyfinApiKey")
+        defaults.set(jellyfinUploadEnabled, forKey: "jellyfinUploadEnabled")
+        defaults.set(jellyfinMovieLibraryId, forKey: "jellyfinMovieLibraryId")
+        defaults.set(jellyfinTvLibraryId, forKey: "jellyfinTvLibraryId")
+        defaults.set(jellyfinMovieServerPath, forKey: "jellyfinMovieServerPath")
+        defaults.set(jellyfinTvServerPath, forKey: "jellyfinTvServerPath")
     }
 
     private static func parse(from url: URL) -> PipelineConfig? {
@@ -150,6 +207,14 @@ public struct PipelineConfig: Sendable {
             case "subtitles":
                 if key == "language" { config.subtitleLanguage = val }
                 else if key == "format" { config.subtitleFormat = val }
+            case "jellyfin":
+                if key == "server_url" { config.jellyfinServerURL = val }
+                else if key == "api_key" { config.jellyfinApiKey = val }
+                else if key == "upload_enabled" { config.jellyfinUploadEnabled = (val.lowercased() == "true" || val == "1") }
+                else if key == "movie_library_id" { config.jellyfinMovieLibraryId = val }
+                else if key == "tv_library_id" { config.jellyfinTvLibraryId = val }
+                else if key == "movie_server_path" { config.jellyfinMovieServerPath = val }
+                else if key == "tv_server_path" { config.jellyfinTvServerPath = val }
             default:
                 break
             }
