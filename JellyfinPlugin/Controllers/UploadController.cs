@@ -51,7 +51,7 @@ public class UploadController : ControllerBase
         {
             Plugin = "FileToRemux",
             Installed = true,
-            Version = "1.0.0",
+            Version = "1.0.1",
             DirectUploadsEnabled = config?.EnableDirectUploads ?? true,
             ServerName = _configManager.Configuration.ServerName ?? "Jellyfin"
         });
@@ -115,6 +115,20 @@ public class UploadController : ControllerBase
 
         var tempPath = Path.Combine(movieFolder, $"{folderName}.uploading.tmp");
 
+        // Clean up any stale temp upload file left behind by a previously interrupted
+        // upload so leftovers can never be mistaken for (or block) a fresh transfer.
+        if (System.IO.File.Exists(tempPath))
+        {
+            System.IO.File.Delete(tempPath);
+        }
+
+        // A final file that already exists means a previous upload for this title
+        // already completed. Surface an error instead of silently overwriting it.
+        if (System.IO.File.Exists(destMkv))
+        {
+            return Conflict(new { Error = $"A movie file for '{title} ({year})' already exists at {destMkv}." });
+        }
+
         try
         {
             await using (var fileStream = new FileStream(
@@ -126,11 +140,6 @@ public class UploadController : ControllerBase
                 useAsync: true))
             {
                 await Request.Body.CopyToAsync(fileStream, cancellationToken);
-            }
-
-            if (System.IO.File.Exists(destMkv))
-            {
-                System.IO.File.Delete(destMkv);
             }
 
             System.IO.File.Move(tempPath, destMkv);
@@ -214,6 +223,20 @@ public class UploadController : ControllerBase
 
         var tempPath = Path.Combine(seasonFolder, $"{fileName}.uploading.tmp");
 
+        // Clean up any stale temp upload file left behind by a previously interrupted
+        // upload so leftovers can never be mistaken for (or block) a fresh transfer.
+        if (System.IO.File.Exists(tempPath))
+        {
+            System.IO.File.Delete(tempPath);
+        }
+
+        // A final file that already exists means a previous upload for this episode
+        // already completed. Surface an error instead of silently overwriting it.
+        if (System.IO.File.Exists(destMkv))
+        {
+            return Conflict(new { Error = $"A TV episode file '{fileName}' already exists at {destMkv}." });
+        }
+
         try
         {
             await using (var fileStream = new FileStream(
@@ -225,11 +248,6 @@ public class UploadController : ControllerBase
                 useAsync: true))
             {
                 await Request.Body.CopyToAsync(fileStream, cancellationToken);
-            }
-
-            if (System.IO.File.Exists(destMkv))
-            {
-                System.IO.File.Delete(destMkv);
             }
 
             System.IO.File.Move(tempPath, destMkv);

@@ -548,7 +548,9 @@ public final class PipelineManager: PipelineDelegate, TitlePromptProvider {
                         )
                     }
 
-                    if self.jellyfinQueue.contains(where: { $0.id == item.id }) {
+                    // A task that was cancelled mid-upload (user hit Stop) must never be
+                    // reported as completed, even if the transfer happens to return.
+                    if !Task.isCancelled, self.jellyfinQueue.contains(where: { $0.id == item.id }) {
                         self.updateJellyfinItem(
                             id: item.id,
                             status: .completed,
@@ -585,6 +587,7 @@ public final class PipelineManager: PipelineDelegate, TitlePromptProvider {
             }
 
             self.isJellyfinUploading = false
+            self.jellyfinUploadTask = nil
             self.currentJellyfinItem = nil
             AppLogger.info("Jellyfin direct upload queue completed", tag: "Jellyfin")
         }
@@ -593,7 +596,10 @@ public final class PipelineManager: PipelineDelegate, TitlePromptProvider {
     public func stopJellyfinUploads() {
         jellyfinUploadTask?.cancel()
         jellyfinUploadTask = nil
-        isJellyfinUploading = false
+        // The upload task owns the uploading state: it clears `isJellyfinUploading`
+        // once it observes the cancellation and unwinds. Clearing it here as well would
+        // allow a retry to start a second upload task while this one is still stopping,
+        // which can race the cancelled task against the fresh upload.
         if let current = currentJellyfinItem {
             updateJellyfinItem(
                 id: current.id,
