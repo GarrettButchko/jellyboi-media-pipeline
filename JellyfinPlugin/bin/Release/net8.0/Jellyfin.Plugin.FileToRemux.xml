@@ -35,6 +35,12 @@
             Streams an MKV episode directly to the TV series season folder and refreshes the library item.
             </summary>
         </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.RemoveStaleTempFilesAsync(System.String,System.String)">
+            <summary>
+            Deletes leftover temp files for the given media destination. Files still locked by an
+            in-flight request are left alone so they cannot break a retry.
+            </summary>
+        </member>
         <member name="T:Jellyfin.Plugin.FileToRemux.Plugin">
             <summary>
             The main plugin class for FileToRemux Jellyfin integration.

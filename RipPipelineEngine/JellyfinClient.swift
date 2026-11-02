@@ -301,7 +301,31 @@ public struct JellyfinClient: Sendable {
             do {
                 let delegate = UploadTaskDelegate()
                 delegate.progressHandler = progressHandler
-                try await session.upload(for: request, fromFile: fileURL, delegate: delegate)
+                let (data, response) = try await session.upload(for: request, fromFile: fileURL, delegate: delegate)
+
+                guard let http = response as? HTTPURLResponse else {
+                    throw JellyfinError.uploadFailed("Invalid server response")
+                }
+
+                // URLSession treats any completed HTTP exchange as success. Without this
+                // check a 409/500 returned by the plugin was reported as a finished upload.
+                if !(200...299).contains(http.statusCode) {
+                    if http.statusCode >= 500, attempt < maxAttempts {
+                        let delay = retryDelays[min(attempt - 1, retryDelays.count - 1)]
+                        try await Task.sleep(for: delay)
+                        attempt += 1
+                        continue
+                    }
+
+                    if http.statusCode == 401 || http.statusCode == 403 {
+                        throw JellyfinError.unauthorized
+                    }
+
+                    throw JellyfinError.uploadFailed(
+                        Self.serverErrorMessage(from: data, statusCode: http.statusCode)
+                    )
+                }
+
                 progressHandler?(1.0)
                 return
             } catch {
@@ -312,6 +336,33 @@ public struct JellyfinClient: Sendable {
                 try await Task.sleep(for: delay)
                 attempt += 1
             }
+        }
+    }
+
+    /// Extracts a human-readable error from the plugin's JSON error body, falling back to
+    /// the HTTP status when the server does not send one.
+    private static func serverErrorMessage(from data: Data, statusCode: Int) -> String {
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            if let message = json["Error"] as? String, !message.isEmpty {
+                return message
+            }
+            if let title = json["title"] as? String, !title.isEmpty {
+                return title
+            }
+        }
+
+        if let text = String(data: data, encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+           !text.isEmpty,
+           text.count <= 500 {
+            return text
+        }
+
+        switch statusCode {
+        case 409:
+            return "A file with this name already exists on the server."
+        default:
+            return "Server returned HTTP \(statusCode)"
         }
     }
 

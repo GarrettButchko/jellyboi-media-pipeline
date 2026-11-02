@@ -12,3 +12,17 @@
 /src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.xml
 /src/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.pdb
 /src/obj/Release/net8.0/ref/Jellyfin.Plugin.FileToRemux.dll
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/bin/Release/net8.0/Jellyfin.Plugin.FileToRemux.deps.json
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/bin/Release/net8.0/Jellyfin.Plugin.FileToRemux.dll
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/bin/Release/net8.0/Jellyfin.Plugin.FileToRemux.pdb
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/bin/Release/net8.0/Jellyfin.Plugin.FileToRemux.xml
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.csproj.AssemblyReference.cache
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.GeneratedMSBuildEditorConfig.editorconfig
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.AssemblyInfoInputs.cache
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.AssemblyInfo.cs
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.csproj.CoreCompileInputs.cache
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.dll
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/refint/Jellyfin.Plugin.FileToRemux.dll
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.xml
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/Jellyfin.Plugin.FileToRemux.pdb
+/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/obj/Release/net8.0/ref/Jellyfin.Plugin.FileToRemux.dll
