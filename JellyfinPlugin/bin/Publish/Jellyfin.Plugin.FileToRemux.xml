@@ -40,19 +40,6 @@
             Splits "Name (Year) [imdbid-tt123]" into its parts. Missing metadata is returned empty.
             </summary>
         </member>
-        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.ScheduleLingeringTempCleanup(System.String)">
-            <summary>
-            Keeps retrying the folder for a while after an upload ends. Windows keeps a temp file
-            locked until the request that owned it is fully torn down, which can be much later than
-            the point where the upload response was sent.
-            </summary>
-        </member>
-        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.RemoveStaleTempFilesAsync(System.String,System.String,System.Boolean)">
-            <summary>
-            Deletes leftover temp files for the given media destination. Files still locked by an
-            in-flight request are left alone so they cannot break a retry.
-            </summary>
-        </member>
         <member name="T:Jellyfin.Plugin.FileToRemux.Plugin">
             <summary>
             The main plugin class for FileToRemux Jellyfin integration.
@@ -104,9 +91,9 @@
         </member>
         <member name="T:Jellyfin.Plugin.FileToRemux.StaleTempCleanupService">
             <summary>
-            Removes upload temp files left behind by interrupted uploads. On Windows a temp file that
-            was still open could not be deleted by the upload request itself, so the cleaner retries
-            it later instead of leaving it in the library forever.
+            Removes upload temp files left behind by interrupted uploads. Cleanup runs once when the
+            server starts, because on Windows a temp file can stay locked by a request that outlived
+            the upload and cannot reliably be removed while that handle is still open.
             </summary>
         </member>
         <member name="M:Jellyfin.Plugin.FileToRemux.StaleTempCleanupService.#ctor(MediaBrowser.Controller.Library.ILibraryManager,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.FileToRemux.StaleTempCleanupService})">
@@ -119,8 +106,7 @@
         </member>
         <member name="T:Jellyfin.Plugin.FileToRemux.TempFileTracker">
             <summary>
-            Tracks in-flight upload temp files and recently used upload folders so the background
-            cleaner never deletes an active transfer.
+            Tracks in-flight upload temp files so the startup cleaner never deletes an active transfer.
             </summary>
         </member>
         <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.RegisterActive(System.String)">
@@ -136,16 +122,6 @@
         <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.IsActive(System.String)">
             <summary>
             Returns whether the given temp file is still being written by an upload.
-            </summary>
-        </member>
-        <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.TrackFolder(System.String)">
-            <summary>
-            Remembers a folder that received an upload so the cleaner can retry locked files there.
-            </summary>
-        </member>
-        <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.GetTrackedFolders">
-            <summary>
-            Returns the folders touched by uploads in the last 24 hours.
             </summary>
         </member>
     </members>
