@@ -35,7 +35,12 @@
             Streams an MKV episode directly to the TV series season folder and refreshes the library item.
             </summary>
         </member>
-        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.RemoveStaleTempFilesAsync(System.String,System.String)">
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.TryParseMediaFolderName(System.String,System.String@,System.String@,System.String@)">
+            <summary>
+            Splits "Name (Year) [imdbid-tt123]" into its parts. Missing metadata is returned empty.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.RemoveStaleTempFilesAsync(System.String,System.String,System.Boolean)">
             <summary>
             Deletes leftover temp files for the given media destination. Files still locked by an
             in-flight request are left alone so they cannot break a retry.
@@ -80,6 +85,60 @@
         <member name="P:Jellyfin.Plugin.FileToRemux.PluginConfiguration.CustomTempUploadPath">
             <summary>
             Gets or sets the temporary upload buffer path. If null, the system temp directory is used.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FileToRemux.PluginServiceRegistrator">
+            <summary>
+            Registers plugin background services with the Jellyfin host.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.PluginServiceRegistrator.RegisterServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MediaBrowser.Controller.IServerApplicationHost)">
+            <inheritdoc />
+        </member>
+        <member name="T:Jellyfin.Plugin.FileToRemux.StaleTempCleanupService">
+            <summary>
+            Removes upload temp files left behind by interrupted uploads. On Windows a temp file that
+            was still open could not be deleted by the upload request itself, so the cleaner retries
+            it later instead of leaving it in the library forever.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.StaleTempCleanupService.#ctor(MediaBrowser.Controller.Library.ILibraryManager,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.FileToRemux.StaleTempCleanupService})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.FileToRemux.StaleTempCleanupService"/> class.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.StaleTempCleanupService.ExecuteAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Jellyfin.Plugin.FileToRemux.TempFileTracker">
+            <summary>
+            Tracks in-flight upload temp files and recently used upload folders so the background
+            cleaner never deletes an active transfer.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.RegisterActive(System.String)">
+            <summary>
+            Marks a temp file as belonging to an in-flight upload.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.UnregisterActive(System.String)">
+            <summary>
+            Clears the in-flight marker once the upload has finished or failed.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.IsActive(System.String)">
+            <summary>
+            Returns whether the given temp file is still being written by an upload.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.TrackFolder(System.String)">
+            <summary>
+            Remembers a folder that received an upload so the cleaner can retry locked files there.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.TempFileTracker.GetTrackedFolders">
+            <summary>
+            Returns the folders touched by uploads in the last 24 hours.
             </summary>
         </member>
     </members>

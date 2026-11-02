@@ -1230,7 +1230,7 @@
     "/Users/garrettbutchko/.nuget/packages/": {}
   },
   "project": {
-    "version": "1.0.3",
+    "version": "1.0.4",
     "restore": {
       "projectUniqueName": "/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/Jellyfin.Plugin.FileToRemux.csproj",
       "projectName": "Jellyfin.Plugin.FileToRemux",
