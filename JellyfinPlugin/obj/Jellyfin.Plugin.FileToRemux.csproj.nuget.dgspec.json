@@ -5,7 +5,7 @@
   },
   "projects": {
     "/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/Jellyfin.Plugin.FileToRemux.csproj": {
-      "version": "1.0.4",
+      "version": "1.0.5",
       "restore": {
         "projectUniqueName": "/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/Jellyfin.Plugin.FileToRemux.csproj",
         "projectName": "Jellyfin.Plugin.FileToRemux",

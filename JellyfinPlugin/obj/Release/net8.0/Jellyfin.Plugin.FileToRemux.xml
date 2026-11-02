@@ -40,6 +40,13 @@
             Splits "Name (Year) [imdbid-tt123]" into its parts. Missing metadata is returned empty.
             </summary>
         </member>
+        <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.ScheduleLingeringTempCleanup(System.String)">
+            <summary>
+            Keeps retrying the folder for a while after an upload ends. Windows keeps a temp file
+            locked until the request that owned it is fully torn down, which can be much later than
+            the point where the upload response was sent.
+            </summary>
+        </member>
         <member name="M:Jellyfin.Plugin.FileToRemux.Controllers.UploadController.RemoveStaleTempFilesAsync(System.String,System.String,System.Boolean)">
             <summary>
             Deletes leftover temp files for the given media destination. Files still locked by an

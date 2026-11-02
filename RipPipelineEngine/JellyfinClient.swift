@@ -299,9 +299,11 @@ public struct JellyfinClient: Sendable {
         var attempt = 1
         while true {
             do {
-                let delegate = UploadTaskDelegate()
-                delegate.progressHandler = progressHandler
-                let (data, response) = try await session.upload(for: request, fromFile: fileURL, delegate: delegate)
+                let (data, response) = try await Self.uploadOnce(
+                    request: request,
+                    fromFile: fileURL,
+                    progressHandler: progressHandler
+                )
 
                 guard let http = response as? HTTPURLResponse else {
                     throw JellyfinError.uploadFailed("Invalid server response")
@@ -337,6 +339,26 @@ public struct JellyfinClient: Sendable {
                 attempt += 1
             }
         }
+    }
+
+    /// Runs a single upload attempt on its own URLSession. The session is invalidated as soon as
+    /// the attempt ends, which closes the connection so the server aborts a request it is still
+    /// reading instead of leaving a half-open upload holding the temp file for minutes.
+    private static func uploadOnce(
+        request: URLRequest,
+        fromFile fileURL: URL,
+        progressHandler: (@Sendable (Double) -> Void)?
+    ) async throws -> (Data, URLResponse) {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.httpMaximumConnectionsPerHost = 1
+        configuration.waitsForConnectivity = false
+
+        let attemptSession = URLSession(configuration: configuration)
+        defer { attemptSession.invalidateAndCancel() }
+
+        let delegate = UploadTaskDelegate()
+        delegate.progressHandler = progressHandler
+        return try await attemptSession.upload(for: request, fromFile: fileURL, delegate: delegate)
     }
 
     /// Extracts a human-readable error from the plugin's JSON error body, falling back to
