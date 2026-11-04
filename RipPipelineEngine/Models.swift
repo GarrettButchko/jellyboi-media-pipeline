@@ -171,19 +171,22 @@ public struct JellyfinServerStatus: Sendable, Codable, Equatable {
     public let version: String?
     public let directUploadsEnabled: Bool?
     public let serverName: String?
+    public let supportsResumableUploads: Bool?
 
     public init(
-        plugin: String? = "FileToRemux",
+        plugin: String? = "Jellyboi File Upload",
         installed: Bool = true,
         version: String? = "1.0.0",
         directUploadsEnabled: Bool? = true,
-        serverName: String? = nil
+        serverName: String? = nil,
+        supportsResumableUploads: Bool? = true
     ) {
         self.plugin = plugin
         self.installed = installed
         self.version = version
         self.directUploadsEnabled = directUploadsEnabled
         self.serverName = serverName
+        self.supportsResumableUploads = supportsResumableUploads
     }
 
     enum CodingKeys: String, CodingKey {
@@ -192,6 +195,7 @@ public struct JellyfinServerStatus: Sendable, Codable, Equatable {
         case version, Version
         case directUploadsEnabled, DirectUploadsEnabled
         case serverName, ServerName
+        case supportsResumableUploads, SupportsResumableUploads
     }
 
     public init(from decoder: Decoder) throws {
@@ -207,6 +211,8 @@ public struct JellyfinServerStatus: Sendable, Codable, Equatable {
             ?? (try? container.decodeIfPresent(Bool.self, forKey: .DirectUploadsEnabled))
         self.serverName = (try? container.decodeIfPresent(String.self, forKey: .serverName))
             ?? (try? container.decodeIfPresent(String.self, forKey: .ServerName))
+        self.supportsResumableUploads = (try? container.decodeIfPresent(Bool.self, forKey: .supportsResumableUploads))
+            ?? (try? container.decodeIfPresent(Bool.self, forKey: .SupportsResumableUploads))
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -216,6 +222,52 @@ public struct JellyfinServerStatus: Sendable, Codable, Equatable {
         try container.encodeIfPresent(version, forKey: .version)
         try container.encodeIfPresent(directUploadsEnabled, forKey: .directUploadsEnabled)
         try container.encodeIfPresent(serverName, forKey: .serverName)
+        try container.encodeIfPresent(supportsResumableUploads, forKey: .supportsResumableUploads)
+    }
+}
+
+public struct JellyfinUploadProgressResponse: Sendable, Codable {
+    public let completed: Bool
+    public let offset: Int64
+    public let path: String?
+
+    public init(completed: Bool = false, offset: Int64 = 0, path: String? = nil) {
+        self.completed = completed
+        self.offset = offset
+        self.path = path
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case completed
+        case offset
+        case path
+    }
+
+    private enum AltCodingKeys: String, CodingKey {
+        case Completed
+        case Offset
+        case Path
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: CodingKeys.self)
+        let altContainer = try? decoder.container(keyedBy: AltCodingKeys.self)
+
+        self.completed = (try? container?.decodeIfPresent(Bool.self, forKey: .completed))
+            ?? (try? altContainer?.decodeIfPresent(Bool.self, forKey: .Completed))
+            ?? false
+        self.offset = (try? container?.decodeIfPresent(Int64.self, forKey: .offset))
+            ?? (try? altContainer?.decodeIfPresent(Int64.self, forKey: .Offset))
+            ?? 0
+        self.path = (try? container?.decodeIfPresent(String.self, forKey: .path))
+            ?? (try? altContainer?.decodeIfPresent(String.self, forKey: .Path))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(completed, forKey: .completed)
+        try container.encode(offset, forKey: .offset)
+        try container.encodeIfPresent(path, forKey: .path)
     }
 }
 

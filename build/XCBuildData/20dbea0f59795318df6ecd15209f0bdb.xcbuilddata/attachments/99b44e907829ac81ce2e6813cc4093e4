@@ -1,0 +1,4 @@
+module BaseColors {
+header "BaseColors-Swift.h"
+export *
+}

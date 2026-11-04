@@ -125,8 +125,20 @@ public struct OMDbClient: Sendable {
 
     // MARK: - Series & TV Episode Lookup
 
-    public func lookupSeries(title: String) async -> (title: String, year: String, imdbId: String)? {
-        let variations = TitleSanitizer.searchVariations(for: title)
+    public func lookupSeries(
+        title: String,
+        alternateTitles: [String] = []
+    ) async -> (title: String, year: String, imdbId: String)? {
+        // Try the primary query first, then any alternates (for example, an
+        // on-device model's cleaned-up spelling of the series name).
+        var variations: [String] = []
+        for rawTitle in [title] + alternateTitles {
+            for variation in TitleSanitizer.searchVariations(for: rawTitle) {
+                if !variations.contains(where: { $0.caseInsensitiveCompare(variation) == .orderedSame }) {
+                    variations.append(variation)
+                }
+            }
+        }
 
         for query in variations {
             if let match = await lookup(title: query, type: "series") {

@@ -167,7 +167,7 @@ public actor OpenSubtitlesClient {
 
             let downloads = (attrs["download_count"] as? Int) ?? 0
             let score = scoreRelease(release: release, sourceType: sourceType, preferExtended: preferExtended)
-            candidates.append(SubtitleCandidate(
+            await candidates.append(SubtitleCandidate(
                 fileId: fileId,
                 release: release,
                 score: score,
@@ -205,7 +205,7 @@ public actor OpenSubtitlesClient {
             }
 
             // Duration check on raw subtitle (end check only)
-            if !SubtitleProcessor.durationMatches(srtData: content, videoDuration: videoDuration, mediaType: mediaType, checkStart: false) {
+            if await !SubtitleProcessor.durationMatches(srtData: content, videoDuration: videoDuration, mediaType: mediaType, checkStart: false) {
                 AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed the duration check — trying next-best release.")
                 continue
             }
@@ -222,7 +222,7 @@ public actor OpenSubtitlesClient {
                     AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed alignment (different cut or alass error) — trying next-best.")
                     continue
                 }
-                if !SubtitleProcessor.durationMatches(srtData: synced, videoDuration: videoDuration, mediaType: mediaType, checkStart: true) {
+                if await !SubtitleProcessor.durationMatches(srtData: synced, videoDuration: videoDuration, mediaType: mediaType, checkStart: true) {
                     AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed post-alignment start/end check — trying next-best.")
                     continue
                 }

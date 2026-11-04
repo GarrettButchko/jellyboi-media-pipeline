@@ -198,8 +198,8 @@ public struct Pipeline: Sendable {
         let sourceType = (try? await inspector.detectSourceType(fileURL: workingURL)) ?? .bluray
         Notifier.notify(title: "Rip Pipeline", message: fileName, subtitle: "Detected: \(sourceType.displayTitle)")
 
-        // TV Episode detection: filename contains SxxExx
-        let tvRegex = try? NSRegularExpression(pattern: #"S(\d{2})E(\d{2})"#, options: .caseInsensitive)
+        // TV Episode detection: filename contains SxxExx or SxEx
+        let tvRegex = try? NSRegularExpression(pattern: #"\bS(\d{1,2})[ ._-]?E(\d{1,2})\b"#, options: .caseInsensitive)
         let stem = workingURL.deletingPathExtension().lastPathComponent
         if let match = tvRegex?.firstMatch(in: stem, range: NSRange(stem.startIndex..., in: stem)) {
             await processTVEpisode(
@@ -207,6 +207,41 @@ public struct Pipeline: Sendable {
                 workingURL: workingURL,
                 stem: stem,
                 match: match,
+                sourceType: sourceType,
+                outputDir: outputDir,
+                forceSubs: forceSubs,
+                delegate: delegate
+            )
+            return
+        }
+
+        // No SxxExx marker. Let the on-device model (Apple Silicon + Apple
+        // Intelligence only) read the name and, if it is a TV episode, recover
+        // the series/season/episode before falling back to movie handling.
+        var aiSuggestion: MediaQuerySuggestion? = nil
+        if MediaQueryAssistant.isAvailable {
+            await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
+                fileURL: fileURL,
+                stage: .extractingMetadata,
+                progressFraction: 0.20,
+                detail: "Reading file name with the on-device model…"
+            ))
+            aiSuggestion = await MediaQueryAssistant.suggestSearchName(forFileNamed: stem)
+        }
+
+        if let ai = aiSuggestion,
+           ai.isTVEpisode,
+           let season = ai.season,
+           let episode = ai.episode,
+           !ai.searchTitle.isEmpty {
+            AppLogger.info("On-device AI detected TV episode: '\(ai.searchTitle)' S\(String(format: "%02d", season))E\(String(format: "%02d", episode))")
+            await processTVEpisode(
+                fileURL: fileURL,
+                workingURL: workingURL,
+                stem: stem,
+                seriesTitle: ai.searchTitle,
+                season: season,
+                episode: episode,
                 sourceType: sourceType,
                 outputDir: outputDir,
                 forceSubs: forceSubs,
@@ -244,6 +279,24 @@ public struct Pipeline: Sendable {
             inspector: inspector,
             fileURL: workingURL
         )
+
+        // If the heuristic title failed, retry once with the on-device model's
+        // cleaned-up name. This is a fallback only, so well-named movies never
+        // wait on the model.
+        if matchedMovie == nil,
+           let ai = aiSuggestion,
+           !ai.isTVEpisode,
+           !ai.searchTitle.isEmpty,
+           ai.searchTitle.caseInsensitiveCompare(parsed.title) != .orderedSame {
+            AppLogger.warning("Heuristic title '\(parsed.title)' had no IMDb match — retrying with on-device query '\(ai.searchTitle)'")
+            matchedMovie = await omdbClient.resolveMovie(
+                title: ai.searchTitle,
+                yearHint: ai.year.map(String.init) ?? parsed.yearHint,
+                durationMinutes: parsed.durationMinutes,
+                inspector: inspector,
+                fileURL: workingURL
+            )
+        }
 
         // If no match found, prompt user once more for an accurate title or IMDb ID
         if matchedMovie == nil, let promptProvider = titlePromptProvider {
@@ -498,7 +551,7 @@ public struct Pipeline: Sendable {
             }
         }
 
-        AppLogger.info("Finished: \(dest.lastPathComponent) (\(sizeStr))")
+        AppLogger.success("Finished: \(dest.lastPathComponent) (\(sizeStr))")
         Notifier.notify(title: "Rip Pipeline ✓", message: "\(movie.title) (\(movie.year))", subtitle: "\(sizeStr) — \(subStatus)")
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -522,7 +575,6 @@ public struct Pipeline: Sendable {
         forceSubs: Bool,
         delegate: PipelineDelegate? = nil
     ) async {
-        let activeURL = workingURL ?? fileURL
         guard let r1 = Range(match.range(at: 1), in: stem),
               let r2 = Range(match.range(at: 2), in: stem),
               let matchRange = Range(match.range, in: stem) else { return }
@@ -530,6 +582,40 @@ public struct Pipeline: Sendable {
         let season = Int(stem[r1]) ?? 1
         let episode = Int(stem[r2]) ?? 1
         let seriesRaw = String(stem[..<matchRange.lowerBound])
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: ".", with: " ")
+            .trimmingCharacters(in: CharacterSet(charactersIn: " -"))
+
+        await processTVEpisode(
+            fileURL: fileURL,
+            workingURL: workingURL,
+            stem: stem,
+            seriesTitle: seriesRaw,
+            season: season,
+            episode: episode,
+            sourceType: sourceType,
+            outputDir: outputDir,
+            forceSubs: forceSubs,
+            delegate: delegate
+        )
+    }
+
+    /// Shared TV episode flow used by both the SxxExx regex path and the
+    /// on-device model fallback.
+    public func processTVEpisode(
+        fileURL: URL,
+        workingURL: URL? = nil,
+        stem: String,
+        seriesTitle: String,
+        season: Int,
+        episode: Int,
+        sourceType: SourceType,
+        outputDir: URL?,
+        forceSubs: Bool,
+        delegate: PipelineDelegate? = nil
+    ) async {
+        let activeURL = workingURL ?? fileURL
+        let seriesRaw = seriesTitle
             .replacingOccurrences(of: "_", with: " ")
             .replacingOccurrences(of: ".", with: " ")
             .trimmingCharacters(in: CharacterSet(charactersIn: " -"))
@@ -543,7 +629,20 @@ public struct Pipeline: Sendable {
             detail: "Looking up series '\(seriesRaw)' on IMDb…"
         ))
 
-        guard let series = await omdbClient.lookupSeries(title: seriesRaw) else {
+        var series = await omdbClient.lookupSeries(title: seriesRaw)
+
+        // If the raw name fails (for example a typo like "Pysch"), ask the
+        // on-device model for a cleaned-up series name and retry once.
+        if series == nil,
+           MediaQueryAssistant.isAvailable,
+           let ai = await MediaQueryAssistant.suggestSearchName(forFileNamed: stem),
+           !ai.searchTitle.isEmpty,
+           ai.searchTitle.caseInsensitiveCompare(seriesRaw) != .orderedSame {
+            AppLogger.warning("No IMDb match for '\(seriesRaw)' — retrying with on-device query '\(ai.searchTitle)'")
+            series = await omdbClient.lookupSeries(title: ai.searchTitle, alternateTitles: [seriesRaw])
+        }
+
+        guard let series = series else {
             logUnmatched(fileURL: activeURL)
             AppLogger.error("No IMDb series match — logged to unmatched.log")
             Notifier.notify(title: "Rip Pipeline ⚠️", message: "No IMDb series match for '\(seriesRaw)'")
@@ -770,7 +869,7 @@ public struct Pipeline: Sendable {
             }
         }
 
-        AppLogger.info("Finished: \(dest.lastPathComponent) (\(sizeStr))")
+        AppLogger.success("Finished: \(dest.lastPathComponent) (\(sizeStr))")
         Notifier.notify(title: "Rip Pipeline ✓", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "\(sizeStr) — \(subStatus)")
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(

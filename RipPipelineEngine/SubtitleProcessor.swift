@@ -10,7 +10,7 @@ public struct SubtitleProcessor: Sendable {
 
     // MARK: - Multi-Encoding String Decoding & Encoding
 
-    public static func decodeSRT(data: Data) -> String {
+    public nonisolated static func decodeSRT(data: Data) -> String {
         var result: String? = nil
 
         if data.starts(with: [0xFF, 0xFE]) {

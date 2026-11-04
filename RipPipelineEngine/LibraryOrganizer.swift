@@ -38,7 +38,6 @@ public struct LibraryOrganizer: Sendable {
         AppLogger.info("Moving MKV → \(destMKV.path)")
         try FileManager.default.moveItem(at: srcURL, to: destMKV)
 
-        AppLogger.info("Done: \(destDir.path)")
         return destMKV
     }
 
@@ -76,7 +75,6 @@ public struct LibraryOrganizer: Sendable {
         AppLogger.info("Moving MKV → \(destMKV.path)")
         try FileManager.default.moveItem(at: srcURL, to: destMKV)
 
-        AppLogger.info("Done: \(destDir.path)")
         return destMKV
     }
 }

@@ -1,0 +1,19 @@
+{
+  "" : {
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit-primary.dia",
+    "emit-module-dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit-primary-emit-module.dia",
+    "pch" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit-primary.swiftdeps"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/Sources/LoggingKit/LoggingKit.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit.dia",
+    "index-unit-output-path" : "/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/LoggingKit/build/LoggingKit.build/Debug/LoggingKit-t.build/Objects-normal/x86_64/LoggingKit~partial.swiftmodule"
+  }
+}

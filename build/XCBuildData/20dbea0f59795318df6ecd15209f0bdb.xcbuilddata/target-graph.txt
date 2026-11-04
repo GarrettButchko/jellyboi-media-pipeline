@@ -1,0 +1,13 @@
+Target dependency graph (6 targets)
+Target 'JellyBoiMediaPipeline' in project 'JellyBoiMediaPipeline'
+➜ Explicit dependency on target 'BaseColors-product' in project 'BaseColors'
+➜ Explicit dependency on target 'LoggingKit-product' in project 'LoggingKit'
+Target 'LoggingKit-product' in project 'LoggingKit'
+➜ Explicit dependency on target 'LoggingKit' in project 'LoggingKit'
+Target 'LoggingKit' in project 'LoggingKit' (no dependencies)
+Target 'BaseColors-product' in project 'BaseColors'
+➜ Explicit dependency on target 'BaseColors' in project 'BaseColors'
+➜ Explicit dependency on target 'BaseColors_BaseColors' in project 'BaseColors'
+Target 'BaseColors' in project 'BaseColors'
+➜ Explicit dependency on target 'BaseColors_BaseColors' in project 'BaseColors'
+Target 'BaseColors_BaseColors' in project 'BaseColors' (no dependencies)

@@ -1,0 +1,4 @@
+module LoggingKit {
+header "LoggingKit-Swift.h"
+export *
+}

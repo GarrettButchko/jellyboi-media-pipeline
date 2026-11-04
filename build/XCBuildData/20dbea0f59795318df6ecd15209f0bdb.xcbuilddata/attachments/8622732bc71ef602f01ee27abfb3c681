@@ -1,0 +1,319 @@
+{
+  "" : {
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipeline-primary.dia",
+    "emit-module-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipeline-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipeline-primary-emit-module.dia",
+    "pch" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipeline-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipeline-primary.swiftdeps"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/ContentView.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/JellyBoiMediaPipelineApp.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipelineApp.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipelineApp.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipelineApp.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipelineApp.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipelineApp.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipelineApp.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipelineApp.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiMediaPipelineApp~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/JellyBoiTheme.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiTheme.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiTheme.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiTheme.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiTheme.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiTheme.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiTheme.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiTheme.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyBoiTheme~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/JellyfinDirectView.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinDirectView.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinDirectView.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinDirectView.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinDirectView.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinDirectView.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinDirectView.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinDirectView.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinDirectView~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/LogView.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LogView.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LogView.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LogView.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LogView.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LogView.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LogView.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LogView.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LogView~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/PipelineManager.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineManager.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineManager.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineManager.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineManager.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineManager.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineManager.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineManager.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineManager~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/QueueView.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/QueueView.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/QueueView.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/QueueView.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/QueueView.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/QueueView.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/QueueView.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/QueueView.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/QueueView~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/SettingsView.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SettingsView.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SettingsView.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SettingsView~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/JellyBoiMediaPipeline/ToolsView.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolsView.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolsView.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolsView.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolsView.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolsView.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolsView.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolsView.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolsView~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/Config.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Config.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Config.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Config.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Config.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Config.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Config.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Config.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Config~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/CropDetector.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/CropDetector.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/CropDetector.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/CropDetector.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/CropDetector.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/CropDetector.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/CropDetector.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/CropDetector.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/CropDetector~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/DiscRipRecognizer.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/DiscRipRecognizer.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/DiscRipRecognizer.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/DiscRipRecognizer.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/DiscRipRecognizer.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/DiscRipRecognizer.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/DiscRipRecognizer.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/DiscRipRecognizer.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/DiscRipRecognizer~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/HardwareInfo.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/HardwareInfo.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/HardwareInfo.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/HardwareInfo.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/HardwareInfo.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/HardwareInfo.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/HardwareInfo.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/HardwareInfo.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/HardwareInfo~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/JellyfinClient.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinClient.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinClient.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinClient.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinClient.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinClient.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinClient.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinClient.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/JellyfinClient~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/LibraryOrganizer.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LibraryOrganizer.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LibraryOrganizer.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LibraryOrganizer.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LibraryOrganizer.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LibraryOrganizer.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LibraryOrganizer.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LibraryOrganizer.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/LibraryOrganizer~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/MediaInspector.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaInspector.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaInspector.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaInspector.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaInspector.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaInspector.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaInspector.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaInspector.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaInspector~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/MediaQueryAssistant.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaQueryAssistant.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaQueryAssistant.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaQueryAssistant.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaQueryAssistant.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaQueryAssistant.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaQueryAssistant.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaQueryAssistant.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/MediaQueryAssistant~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/Models.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Models.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Models.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Models.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Models.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Models.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Models.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Models.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Models~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/NotificationHandler.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/NotificationHandler.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/NotificationHandler.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/NotificationHandler.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/NotificationHandler.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/NotificationHandler.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/NotificationHandler.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/NotificationHandler.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/NotificationHandler~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/OMDbClient.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OMDbClient.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OMDbClient.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OMDbClient.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OMDbClient.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OMDbClient.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OMDbClient.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OMDbClient.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OMDbClient~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/OpenSubtitlesClient.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OpenSubtitlesClient.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OpenSubtitlesClient.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OpenSubtitlesClient.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OpenSubtitlesClient.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OpenSubtitlesClient.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OpenSubtitlesClient.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OpenSubtitlesClient.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/OpenSubtitlesClient~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/Pipeline.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Pipeline.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Pipeline.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Pipeline.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Pipeline.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Pipeline.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Pipeline.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Pipeline.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/Pipeline~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/PipelineEvents.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineEvents.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineEvents.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineEvents.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineEvents.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineEvents.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineEvents.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineEvents.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/PipelineEvents~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/ProcessRunner.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ProcessRunner.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ProcessRunner.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ProcessRunner.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ProcessRunner.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ProcessRunner.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ProcessRunner.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ProcessRunner.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ProcessRunner~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/SleepAssertionManager.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SleepAssertionManager.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SleepAssertionManager.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SleepAssertionManager.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SleepAssertionManager.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SleepAssertionManager.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SleepAssertionManager.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SleepAssertionManager.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SleepAssertionManager~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/SubtitleProcessor.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SubtitleProcessor.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SubtitleProcessor.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SubtitleProcessor.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SubtitleProcessor.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SubtitleProcessor.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SubtitleProcessor.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SubtitleProcessor.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/SubtitleProcessor~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/TitlePromptProvider.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitlePromptProvider.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitlePromptProvider.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitlePromptProvider.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitlePromptProvider.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitlePromptProvider.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitlePromptProvider.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitlePromptProvider.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitlePromptProvider~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/TitleSanitizer.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitleSanitizer.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitleSanitizer.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitleSanitizer.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitleSanitizer.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitleSanitizer.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitleSanitizer.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitleSanitizer.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TitleSanitizer~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/ToolRegistry.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolRegistry.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolRegistry.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolRegistry.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolRegistry.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolRegistry.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolRegistry.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolRegistry.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/ToolRegistry~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/RipPipelineEngine/TrackRemuxer.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TrackRemuxer.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TrackRemuxer.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TrackRemuxer.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TrackRemuxer.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TrackRemuxer.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TrackRemuxer.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TrackRemuxer.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/TrackRemuxer~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Jellyboi All/Working/JellyBoiMediaPipeline/build/JellyBoiMediaPipeline.build/Debug/JellyBoiMediaPipeline.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

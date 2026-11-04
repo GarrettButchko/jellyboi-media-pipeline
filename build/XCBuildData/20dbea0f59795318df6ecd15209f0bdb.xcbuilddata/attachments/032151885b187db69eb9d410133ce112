@@ -1,0 +1,39 @@
+{
+  "" : {
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors-primary.dia",
+    "emit-module-dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors-primary-emit-module.dia",
+    "pch" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors-primary.swiftdeps"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/Sources/BaseColors/BaseColors.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors.dia",
+    "index-unit-output-path" : "/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/BaseColors~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/DerivedSources/resource_bundle_accessor.swift" : {
+    "const-values" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/resource_bundle_accessor.swiftconstvalues",
+    "dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/resource_bundle_accessor.d",
+    "diagnostics" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/resource_bundle_accessor.dia",
+    "index-unit-output-path" : "/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/resource_bundle_accessor.o",
+    "llvm-bc" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/resource_bundle_accessor.bc",
+    "object" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/resource_bundle_accessor.o",
+    "swift-dependencies" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/resource_bundle_accessor.swiftdeps",
+    "swiftmodule" : "/Users/garrettbutchko/Documents/Projects/Apps/iOS/Packages/BaseColors/build/BaseColors.build/Debug/BaseColors-t.build/Objects-normal/arm64/resource_bundle_accessor~partial.swiftmodule"
+  }
+}

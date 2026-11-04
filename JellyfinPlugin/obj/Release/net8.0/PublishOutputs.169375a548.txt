@@ -1,4 +1,0 @@
-/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/bin/Publish/Jellyfin.Plugin.FileToRemux.dll
-/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/bin/Publish/Jellyfin.Plugin.FileToRemux.deps.json
-/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/bin/Publish/Jellyfin.Plugin.FileToRemux.pdb
-/Users/garrettbutchko/Documents/Projects/Jellyboi All/FileToRemux/JellyfinPlugin/bin/Publish/Jellyfin.Plugin.FileToRemux.xml
