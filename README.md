@@ -25,9 +25,9 @@ The remux queue accepts raw optical disc rips or unprocessed video files, automa
 When disc titles are abbreviated or search queries return multiple possibilities, modal sheets allow on-the-fly disambiguation. Similar prompts trigger when subtitles require manual selection or alternative release evaluation.
 
 <p align="center">
-  <img src="assets/title_disambiguation.png" alt="Title Disambiguation Sheet" width="440" />
+  <img src="assets/title_disambiguation.png" alt="Title Disambiguation Sheet" width="400" />
   &nbsp;&nbsp;
-  <img src="assets/subtitle_picker.png" alt="Subtitle Fallback Picker" width="440" />
+  <img src="assets/subtitle_picker.png" alt="Subtitle Fallback Picker" width="400" />
 </p>
 
 *Left: Title Disambiguation Sheet resolving ambiguous movie titles against IMDb. Right: Subtitle Fallback Picker displaying release tags, quality badges, FPS values, and exclusion flags.*
@@ -39,9 +39,9 @@ When disc titles are abbreviated or search queries return multiple possibilities
 Finished rips can be pushed directly to a Jellyfin server using the custom `Jellyfin.Plugin.JellyBoiUploadFile` plugin, completely bypassing manual file transfer steps. A dedicated log view provides visibility into underlying tool invocations.
 
 <p align="center">
-  <img src="assets/direct_to_jellyfin.png" alt="Direct to Jellyfin Upload Queue" width="440" />
+  <img src="assets/direct_to_jellyfin.png" alt="Direct to Jellyfin Upload Queue" width="400" />
   &nbsp;&nbsp;
-  <img src="assets/activity_logs.png" alt="Activity Logs" width="440" />
+  <img src="assets/activity_logs.png" alt="Activity Logs" width="400" />
 </p>
 
 *Left: Direct to Jellyfin chunked streaming transfer queue. Right: Live logging console detailing tool invocations and stage progress.*
