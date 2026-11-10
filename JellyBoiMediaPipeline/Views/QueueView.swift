@@ -92,12 +92,12 @@ struct QueueRowView: View {
             // Stage / Media icon
             ZStack {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(item.status.color.opacity(0.14))
+                    .fill(item.status.color.gradient)
                     .frame(width: 38, height: 38)
 
                 Image(systemName: item.stage.systemImageName)
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(item.status.color)
+                    .foregroundStyle(Color.white)
                     .contentTransition(.symbolEffect(.replace))
             }
 

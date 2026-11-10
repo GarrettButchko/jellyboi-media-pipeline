@@ -78,7 +78,7 @@ extension Pipeline {
             destinationURL: destinationURL,
             stage: .completed,
             progressFraction: 1.0,
-            detail: "Successfully processed (\(sizeStr), \(subStatus))"
+            detail: "Successfully processed (\(subStatus))"
         ))
     }
 }

@@ -600,12 +600,12 @@ struct SettingsView: View {
             // Icon
             ZStack {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(tool.isAvailable ? Color.green.opacity(0.12) : Color.orange.opacity(0.12))
+                    .fill((tool.isAvailable ? Color.green : Color.orange).gradient)
                     .frame(width: 32, height: 32)
 
                 Image(systemName: tool.isAvailable ? "checkmark" : "exclamationmark")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(tool.isAvailable ? Color.green : Color.orange)
+                    .foregroundStyle(Color.white)
             }
 
             // Info
