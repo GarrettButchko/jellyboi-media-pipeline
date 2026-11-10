@@ -106,10 +106,8 @@ extension Pipeline {
             // Fetch candidate suggestions from AI if available
             var candidates: [String] = []
             if MediaQueryAssistant.isAvailable {
-                let parentDir = workingURL.deletingLastPathComponent().lastPathComponent
                 candidates = await MediaQueryAssistant.suggestDiscRipCandidates(
-                    fileName: currentPromptTitle,
-                    parentFolder: (parentDir.isEmpty || parentDir == "/") ? nil : parentDir
+                    fileName: currentPromptTitle
                 )
             }
 

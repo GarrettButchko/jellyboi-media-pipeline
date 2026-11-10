@@ -62,10 +62,8 @@ extension Pipeline {
                     progressFraction: 0.06,
                     detail: "Analyzing disc rip with on-device AI…"
                 ))
-                let parentDir = currentURL.deletingLastPathComponent().lastPathComponent
                 candidates = await MediaQueryAssistant.suggestDiscRipCandidates(
-                    fileName: currentName,
-                    parentFolder: (parentDir.isEmpty || parentDir == "/") ? nil : parentDir
+                    fileName: currentName
                 )
             }
 

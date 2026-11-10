@@ -103,11 +103,10 @@ public struct DiscRipRecognizer: Sendable {
         }()
 
         if let matchedReason {
-            let parentHint = suggestedTitleFromParent(fileURL: fileURL)
             return DiscRipDetectionResult(
                 isDiscRip: true,
                 reason: matchedReason,
-                suggestedTitle: parentHint
+                suggestedTitle: nil
             )
         }
 
@@ -121,11 +120,10 @@ public struct DiscRipRecognizer: Sendable {
             // If the prefix itself is a generic word like "DISC1" or "title"
             if genericNames.contains(cleanedSuggestion.lowercased()) ||
                (discIndexRegex?.firstMatch(in: cleanedSuggestion, range: NSRange(cleanedSuggestion.startIndex..., in: cleanedSuggestion)) != nil) {
-                let parentHint = suggestedTitleFromParent(fileURL: fileURL)
                 return DiscRipDetectionResult(
                     isDiscRip: true,
                     reason: .genericMakeMKV,
-                    suggestedTitle: parentHint
+                    suggestedTitle: nil
                 )
             }
 
@@ -142,29 +140,15 @@ public struct DiscRipRecognizer: Sendable {
             if genericNames.contains(lowerMeta) ||
                (discIndexRegex?.firstMatch(in: meta, range: NSRange(meta.startIndex..., in: meta)) != nil) {
                 let cleaned = cleanSuggestedDiscTitle(trimmedStem)
-                let parentHint = suggestedTitleFromParent(fileURL: fileURL)
                 return DiscRipDetectionResult(
                     isDiscRip: true,
                     reason: .emptyOrGenericMetadata,
-                    suggestedTitle: cleaned.isEmpty ? parentHint : cleaned
+                    suggestedTitle: cleaned.isEmpty ? nil : cleaned
                 )
             }
         }
 
         return DiscRipDetectionResult(isDiscRip: false)
-    }
-
-    /// Attempts to extract a meaningful title hint from the parent directory
-    public static func suggestedTitleFromParent(fileURL: URL) -> String? {
-        let parentDir = fileURL.deletingLastPathComponent().lastPathComponent
-        guard !parentDir.isEmpty, parentDir != "/" else { return nil }
-        let lower = parentDir.lowercased()
-        if genericNames.contains(lower) { return nil }
-        if let regex = discIndexRegex, regex.firstMatch(in: parentDir, range: NSRange(parentDir.startIndex..., in: parentDir)) != nil {
-            return nil
-        }
-        let cleaned = cleanSuggestedDiscTitle(parentDir)
-        return cleaned.isEmpty ? nil : cleaned
     }
 
     /// Clean up raw volume names like "THE_LORD_OF_THE_RINGS_D1" into "The Lord of the Rings"

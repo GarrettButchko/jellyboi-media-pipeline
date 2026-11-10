@@ -116,9 +116,9 @@ public enum MediaQueryAssistant {
         return nil
     }
 
-    /// Uses the on-device model to inspect a disc rip file and its parent folder context,
+    /// Uses the on-device model to inspect a disc rip file name,
     /// returning multiple plausible candidate titles (e.g. movies, sequels, or series names).
-    public static func suggestDiscRipCandidates(fileName: String, parentFolder: String? = nil) async -> [String] {
+    public static func suggestDiscRipCandidates(fileName: String) async -> [String] {
         guard isAvailable else {
             logUnavailableOnce()
             return []
@@ -127,7 +127,7 @@ public enum MediaQueryAssistant {
         #if canImport(FoundationModels)
         if #available(macOS 26.0, *) {
             let result = await withTimeout(seconds: generationTimeout) {
-                await generateCandidates(fileName: fileName, parentFolder: parentFolder)
+                await generateCandidates(fileName: fileName)
             }
             return result ?? []
         }
@@ -184,12 +184,12 @@ public enum MediaQueryAssistant {
     }
 
     @available(macOS 26.0, *)
-    private static func generateCandidates(fileName: String, parentFolder: String?) async -> [String]? {
+    private static func generateCandidates(fileName: String) async -> [String]? {
         let session = LanguageModelSession(instructions: candidateInstructions)
 
         do {
             let response = try await session.respond(
-                to: candidatePrompt(fileName: fileName, parentFolder: parentFolder),
+                to: candidatePrompt(fileName: fileName),
                 generating: GeneratedCandidatesList.self
             )
 
@@ -210,30 +210,39 @@ public enum MediaQueryAssistant {
     @available(macOS 26.0, *)
     private static let candidateInstructions = """
     You are an expert film and television media classifier.
-    Given a raw disc rip file name and an optional parent folder name, identify 1 to 5 plausible clean titles (movies, TV series, or franchise titles) that this disc rip represents.
-    
+    Given a raw disc rip file name, identify 1 to 5 plausible clean titles (movies, TV series, or franchise titles) that this disc rip represents.
+
     Rules:
     - Return clean, recognizable movie or TV series titles with official punctuation and spelling.
     - If the name points to a franchise, provide the main film, well-known sequels, or related installments.
     - Omit technical rip noise, track markers (e.g. t00, VTS, m2ts), resolution, and codec tags.
-    - If the input is completely generic with no clues (e.g. "title_t00.mkv" in generic folder), return an empty list.
+    - If the input is completely generic with no clues (e.g. "title_t00.mkv"), return an empty list.
     """
 
     @available(macOS 26.0, *)
-    private static func candidatePrompt(fileName: String, parentFolder: String?) -> String {
-        var str = "File name: \"\(fileName)\""
-        if let parent = parentFolder, !parent.isEmpty {
-            str += "\nParent folder: \"\(parent)\""
-        }
-        str += """
-        
-        Examples:
-        - File: "LOTR_FOTR_EE_D1_t00.mkv", Parent: "Rips" -> ["The Lord of the Rings: The Fellowship of the Ring", "The Lord of the Rings: The Two Towers", "The Lord of the Rings: The Return of the King"]
-        - File: "title_t00.mkv", Parent: "THE_DARK_KNIGHT" -> ["The Dark Knight", "The Dark Knight Rises", "Batman Begins"]
+    private static func candidatePrompt(fileName: String) -> String {
+        let input = "File name: \"\(fileName)\""
+
+        return """
+        Identify likely movie or TV series candidate titles based solely on the provided file name.
+
+        Rules:
+        - Output ONLY a JSON array of strings: ["Title 1", "Title 2"]
+        - If the filename contains no meaningful or identifiable title cues (e.g., generic names like "t_110.mkv", "title_t00.mkv"), or any generic computer file name, return an empty array `[]`.
+        - Do NOT invent titles, guess blindly, or reuse titles from the few-shot examples unless the input explicitly references them.
+        - Order candidates from most likely to least likely (up to 3 candidates).
+
+        Examples (Format and reasoning reference only - do NOT use these titles as defaults):
+        - File: "LOTR_FOTR_EE_D1_t00.mkv" -> ["The Lord of the Rings: The Fellowship of the Ring", "The Lord of the Rings: The Two Towers", "The Lord of the Rings: The Return of the King"]
+        - File: "THE_DARK_KNIGHT_t00.mkv" -> ["The Dark Knight", "The Dark Knight Rises", "Batman Begins"]
         - File: "BREAKING_BAD_S1_D1_t00.mkv" -> ["Breaking Bad"]
-        - File: "title_t00.mkv", Parent: "Downloads" -> []
+        - File: "t_110.mkv" -> []
+        - File: "title_t00.mkv" -> []
+
+        Input:
+        \(input)
+        Output:
         """
-        return str
     }
 
     @available(macOS 26.0, *)
