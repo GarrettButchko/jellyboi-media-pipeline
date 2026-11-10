@@ -13,10 +13,10 @@
   "packages": [
     {
       "kind": "local",
-      "path": "../../../Apps/iOS/Packages/LoggingKit",
+      "path": "../../../../Packages/LoggingKit",
     }, {
       "kind": "local",
-      "path": "../../../Apps/iOS/Packages/BaseColors",
+      "path": "../../../../Packages/BaseColors",
     },
   ],
   "files": [

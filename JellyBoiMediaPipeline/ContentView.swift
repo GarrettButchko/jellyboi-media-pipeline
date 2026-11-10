@@ -8,7 +8,6 @@ enum AppTab: String, CaseIterable, Identifiable {
     case remux = "Remuxing"
     case jellyfin = "Direct to Jellyfin"
     case logs = "Activity Logs"
-    case tools = "Diagnostics"
     case settings = "Settings"
 
     var id: String { rawValue }
@@ -18,7 +17,6 @@ enum AppTab: String, CaseIterable, Identifiable {
         case .remux: return "slider.horizontal.3"
         case .jellyfin: return "server.rack"
         case .logs: return "terminal"
-        case .tools: return "wrench.and.screwdriver"
         case .settings: return "gearshape"
         }
     }
@@ -65,7 +63,7 @@ struct ContentView: View {
                                     .padding(.vertical, 2)
                                     .background(Color.mainOpp.opacity(0.18), in: Capsule())
                                     .foregroundStyle(Color.white)
-                            } else if tab == .tools {
+                            } else if tab == .settings {
                                 let missing = max(0, manager.toolRegistry.allToolsStatus.count - manager.toolRegistry.allToolsStatus.filter { $0.isAvailable }.count)
                                 if missing > 0 {
                                     Text("\(missing)")
@@ -109,8 +107,6 @@ struct ContentView: View {
                     JellyfinDirectView(manager: manager)
                 case .logs:
                     LogView(manager: manager)
-                case .tools:
-                    ToolsView(manager: manager)
                 case .settings:
                     SettingsView(manager: manager)
                 }
@@ -201,6 +197,15 @@ struct ContentView: View {
             if !isAvailable && selectedTab == .jellyfin {
                 selectedTab = .remux
             }
+        }
+        .sheet(item: $manager.activeTitlePrompt) { req in
+            DiscRipTitleSheet(request: req, manager: manager)
+        }
+        .sheet(item: $manager.activeTitleDisambiguation) { req in
+            TitleDisambiguationSheet(request: req, manager: manager)
+        }
+        .sheet(item: $manager.activeSubtitlePrompt) { req in
+            SubtitleSelectionSheet(request: req, manager: manager)
         }
     }
 

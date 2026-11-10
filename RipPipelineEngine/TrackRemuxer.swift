@@ -12,7 +12,11 @@ public struct TrackRemuxer: Sendable {
 
     // MARK: - Clear Subtitle Default Flags
 
-    public func clearSubtitleDefaults(fileURL: URL) async throws {
+    public func clearSubtitleDefaults(fileURL: URL, config: PipelineConfig? = nil) async throws {
+        if let config = config, !config.clearDefaultSubtitleFlags {
+            return
+        }
+
         guard let mkvpropedit = toolRegistry.mkvpropedit else {
             throw ProcessError.executableNotFound("mkvpropedit")
         }
@@ -38,12 +42,9 @@ public struct TrackRemuxer: Sendable {
 
     // MARK: - Strip Tracks & Embed Subtitle
 
-    /// Remux MKV keeping English audio and English subtitles, dropping foreign tracks,
+    /// Remux MKV keeping English audio and subtitles matching configuration rules,
     /// and optionally embedding a new SRT track.
-    ///
-    /// Optimization: Uses a private temporary directory outside the watch directory so the
-    /// batch scanner never mistakes the intermediate file for a newly arrived video.
-    public func stripTracks(fileURL: URL, srtURL: URL? = nil) async throws {
+    public func stripTracks(fileURL: URL, srtURL: URL? = nil, config: PipelineConfig? = nil) async throws {
         guard let mkvmerge = toolRegistry.mkvmerge else {
             throw ProcessError.executableNotFound("mkvmerge")
         }
@@ -56,13 +57,26 @@ public struct TrackRemuxer: Sendable {
         let keepAudio = engAudio.isEmpty ? audioTracks : engAudio
         let keepAudioIds = keepAudio.map { String($0.id) }
 
-        let keepSubs = subTracks.filter { $0.isEnglishSubtitle }
+        let keepSubs: [MKVTrack]
+        if let config = config {
+            keepSubs = subTracks.filter {
+                $0.matchesSubtitleFilter(
+                    retentionMode: config.subtitleRetentionMode,
+                    customLanguages: config.customSubtitleLanguages,
+                    keepSubRip: config.keepSubRip,
+                    keepAssSsa: config.keepAssSsa,
+                    keepBitmapSubs: config.keepBitmapSubs
+                )
+            }
+        } else {
+            keepSubs = subTracks.filter { $0.isEnglishSubtitle }
+        }
         let keepSubIds = keepSubs.map { String($0.id) }
 
         let removedAudio = audioTracks.count - keepAudio.count
         let removedSubs = subTracks.count - keepSubs.count
 
-        AppLogger.info("Keeping \(keepAudio.count) English audio track(s), removing \(removedAudio), removing \(removedSubs) embedded subtitle(s) (keeping \(keepSubs.count)).")
+        AppLogger.info("Keeping \(keepAudio.count) audio track(s) (removed \(removedAudio)), keeping \(keepSubs.count) subtitle(s) (removed \(removedSubs)).")
 
         let needsRemux = (removedAudio > 0) || (removedSubs > 0) || (srtURL != nil)
         if !needsRemux {
@@ -74,7 +88,6 @@ public struct TrackRemuxer: Sendable {
         try FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
-        // Use .tmp extension in temp folder, completely separate from watch directory
         let tmpOut = tmpDir.appendingPathComponent("remuxed_\(fileURL.lastPathComponent)")
 
         var cmd = [
@@ -91,7 +104,8 @@ public struct TrackRemuxer: Sendable {
         cmd.append(fileURL.path)
 
         if let srt = srtURL {
-            cmd.append(contentsOf: ["--language", "0:eng", srt.path])
+            let langTag = config?.subtitleLanguage.isEmpty == false ? (config?.subtitleLanguage ?? "eng") : "eng"
+            cmd.append(contentsOf: ["--language", "0:\(langTag)", srt.path])
         }
 
         let res = try await ProcessRunner.run(executable: mkvmerge, arguments: cmd, timeout: 600)
@@ -120,15 +134,33 @@ public struct TrackRemuxer: Sendable {
 
     // MARK: - Normalize Embedded Subtitles
 
-    public func normalizeEmbeddedSubtitles(fileURL: URL) async throws -> Bool {
+    public func normalizeEmbeddedSubtitles(fileURL: URL, config: PipelineConfig? = nil) async throws -> Bool {
+        if let config = config, !config.normalizeEmbeddedAllCaps {
+            return false
+        }
+
         guard let mkvmerge = toolRegistry.mkvmerge,
               let mkvextract = toolRegistry.mkvextract else {
             return false
         }
 
         let tracks = try await inspector.getMKVTracks(fileURL: fileURL)
-        let engSubRip = tracks.filter { $0.isEnglishSubtitle && $0.isSubRip }
-        guard !engSubRip.isEmpty else { return false }
+        let eligibleSubRip: [MKVTrack]
+        if let config = config {
+            eligibleSubRip = tracks.filter {
+                $0.isSubRip && $0.matchesSubtitleFilter(
+                    retentionMode: config.subtitleRetentionMode,
+                    customLanguages: config.customSubtitleLanguages,
+                    keepSubRip: config.keepSubRip,
+                    keepAssSsa: config.keepAssSsa,
+                    keepBitmapSubs: config.keepBitmapSubs
+                )
+            }
+        } else {
+            eligibleSubRip = tracks.filter { $0.isEnglishSubtitle && $0.isSubRip }
+        }
+
+        guard !eligibleSubRip.isEmpty else { return false }
 
         let tmpDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
@@ -136,7 +168,7 @@ public struct TrackRemuxer: Sendable {
 
         var rewritten: [(trackId: Int, data: Data)] = []
 
-        for t in engSubRip {
+        for t in eligibleSubRip {
             let extractedFile = tmpDir.appendingPathComponent("sub_\(t.id).srt")
             let extRes = try await ProcessRunner.run(
                 executable: mkvextract,
@@ -172,9 +204,21 @@ public struct TrackRemuxer: Sendable {
         let keepAudioIds = keepAudio.map { String($0.id) }
 
         let replaceIds = Set(rewritten.map { $0.trackId })
-        let keepSubIds = subTracks
-            .filter { $0.isEnglishSubtitle && !replaceIds.contains($0.id) }
-            .map { String($0.id) }
+        let keepSubs: [MKVTrack]
+        if let config = config {
+            keepSubs = subTracks.filter {
+                !replaceIds.contains($0.id) && $0.matchesSubtitleFilter(
+                    retentionMode: config.subtitleRetentionMode,
+                    customLanguages: config.customSubtitleLanguages,
+                    keepSubRip: config.keepSubRip,
+                    keepAssSsa: config.keepAssSsa,
+                    keepBitmapSubs: config.keepBitmapSubs
+                )
+            }
+        } else {
+            keepSubs = subTracks.filter { $0.isEnglishSubtitle && !replaceIds.contains($0.id) }
+        }
+        let keepSubIds = keepSubs.map { String($0.id) }
 
         let tmpOut = tmpDir.appendingPathComponent("norm_remuxed.mkv")
         var cmd = [
@@ -190,7 +234,8 @@ public struct TrackRemuxer: Sendable {
 
         cmd.append(fileURL.path)
         for p in normFiles {
-            cmd.append(contentsOf: ["--language", "0:eng", p.path])
+            let langTag = config?.subtitleLanguage.isEmpty == false ? (config?.subtitleLanguage ?? "eng") : "eng"
+            cmd.append(contentsOf: ["--language", "0:\(langTag)", p.path])
         }
 
         let res = try await ProcessRunner.run(executable: mkvmerge, arguments: cmd, timeout: 600)

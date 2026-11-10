@@ -83,6 +83,56 @@ public struct MKVTrack: Sendable {
         return cid == "S_TEXT/UTF8" || cid == "S_TEXT/UTF16" || cid == "S_TEXT/ASCII" || c.contains("subrip")
     }
 
+    public var isAssSsa: Bool {
+        let cid = codecId.uppercased()
+        let c = codec.lowercased()
+        return cid == "S_TEXT/ASS" || cid == "S_TEXT/SSA" || c.contains("ass") || c.contains("ssa")
+    }
+
+    public var isBitmapSubtitle: Bool {
+        let cid = codecId.uppercased()
+        let c = codec.lowercased()
+        return cid == "S_HDMV/PGS" || cid == "S_VOBSUB" || c.contains("pgs") || c.contains("vobsub")
+    }
+
+    public func matchesSubtitleFilter(
+        retentionMode: String,
+        customLanguages: String,
+        keepSubRip: Bool,
+        keepAssSsa: Bool,
+        keepBitmapSubs: Bool
+    ) -> Bool {
+        guard isSubtitle else { return false }
+
+        let lang = language.lowercased()
+        switch retentionMode {
+        case "all":
+            break
+        case "custom":
+            let allowed = customLanguages
+                .components(separatedBy: ",")
+                .map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
+                .filter { !$0.isEmpty }
+            if !allowed.contains(lang) && !(allowed.contains("und") && lang == "und") {
+                return false
+            }
+        default: // "eng"
+            if !["eng", "en", "und"].contains(lang) {
+                return false
+            }
+        }
+
+        if isSubRip {
+            return keepSubRip
+        } else if isAssSsa {
+            return keepAssSsa
+        } else if isBitmapSubtitle {
+            return keepBitmapSubs
+        }
+
+        return true
+    }
+
     public init(id: Int, type: String, codec: String, codecId: String, language: String, isDefault: Bool, isForced: Bool) {
         self.id = id
         self.type = type
@@ -138,13 +188,20 @@ public struct TVEpisodeMatch: Sendable {
     }
 }
 
-public struct SubtitleCandidate: Sendable {
+public struct SubtitleCandidate: Sendable, Identifiable {
     public let fileId: String
     public let release: String
     public let score: Int
     public let downloadCount: Int
     public let hearingImpaired: Bool
     public let fps: Double?
+    public let isHDTV: Bool
+    public let isCommentary: Bool
+    public let isCutVariant: Bool
+    public let rejectionReasons: [String]
+
+    public var id: String { fileId }
+    public var isPassed: Bool { rejectionReasons.isEmpty }
 
     public init(
         fileId: String,
@@ -152,7 +209,11 @@ public struct SubtitleCandidate: Sendable {
         score: Int,
         downloadCount: Int,
         hearingImpaired: Bool,
-        fps: Double?
+        fps: Double?,
+        isHDTV: Bool = false,
+        isCommentary: Bool = false,
+        isCutVariant: Bool = false,
+        rejectionReasons: [String] = []
     ) {
         self.fileId = fileId
         self.release = release
@@ -160,6 +221,10 @@ public struct SubtitleCandidate: Sendable {
         self.downloadCount = downloadCount
         self.hearingImpaired = hearingImpaired
         self.fps = fps
+        self.isHDTV = isHDTV
+        self.isCommentary = isCommentary
+        self.isCutVariant = isCutVariant
+        self.rejectionReasons = rejectionReasons
     }
 }
 

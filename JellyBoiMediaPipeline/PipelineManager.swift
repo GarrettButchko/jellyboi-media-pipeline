@@ -126,6 +126,149 @@ public struct AppLogMessage: Identifiable, Sendable {
     }
 }
 
+// MARK: - Interactive Prompt Requests
+
+public struct TitlePromptRequest: Identifiable, Sendable {
+    public let id: UUID
+    public let fileURL: URL
+    public let suggestedTitle: String?
+    public let reason: DiscRipReason
+    public let completion: @Sendable (String?) -> Void
+
+    public init(
+        id: UUID = UUID(),
+        fileURL: URL,
+        suggestedTitle: String?,
+        reason: DiscRipReason,
+        completion: @escaping @Sendable (String?) -> Void
+    ) {
+        self.id = id
+        self.fileURL = fileURL
+        self.suggestedTitle = suggestedTitle
+        self.reason = reason
+        self.completion = completion
+    }
+}
+
+public struct TitleDisambiguationRequest: Identifiable, Sendable {
+    public let id: UUID
+    public let fileURL: URL
+    public let originalQuery: String
+    public let candidates: [OMDbClient.Candidate]
+    public let completion: @Sendable (OMDbClient.Candidate?) -> Void
+
+    public init(
+        id: UUID = UUID(),
+        fileURL: URL,
+        originalQuery: String,
+        candidates: [OMDbClient.Candidate],
+        completion: @escaping @Sendable (OMDbClient.Candidate?) -> Void
+    ) {
+        self.id = id
+        self.fileURL = fileURL
+        self.originalQuery = originalQuery
+        self.candidates = candidates
+        self.completion = completion
+    }
+}
+
+public struct SubtitleSelectionRequest: Identifiable, Sendable {
+    public let id: UUID
+    public let fileURL: URL
+    public let mediaTitle: String
+    public let candidates: [SubtitleCandidate]
+    public let completion: @Sendable (SubtitleCandidate?) -> Void
+
+    public init(
+        id: UUID = UUID(),
+        fileURL: URL,
+        mediaTitle: String,
+        candidates: [SubtitleCandidate],
+        completion: @escaping @Sendable (SubtitleCandidate?) -> Void
+    ) {
+        self.id = id
+        self.fileURL = fileURL
+        self.mediaTitle = mediaTitle
+        self.candidates = candidates
+        self.completion = completion
+    }
+}
+
+// MARK: - Prompt Provider Adapter
+
+final class ManagerPromptProvider: PipelinePromptProvider, @unchecked Sendable {
+    weak var manager: PipelineManager?
+
+    init(manager: PipelineManager) {
+        self.manager = manager
+    }
+
+    func promptForTitle(fileURL: URL, suggestedTitle: String?, reason: DiscRipReason) async -> String? {
+        await withCheckedContinuation { continuation in
+            Task { @MainActor in
+                guard let manager = self.manager else {
+                    continuation.resume(returning: suggestedTitle)
+                    return
+                }
+                manager.activeTitlePrompt = TitlePromptRequest(
+                    fileURL: fileURL,
+                    suggestedTitle: suggestedTitle,
+                    reason: reason,
+                    completion: { chosen in
+                        continuation.resume(returning: chosen)
+                    }
+                )
+            }
+        }
+    }
+
+    func promptForTitleDisambiguation(
+        fileURL: URL,
+        originalQuery: String,
+        candidates: [OMDbClient.Candidate]
+    ) async -> OMDbClient.Candidate? {
+        await withCheckedContinuation { continuation in
+            Task { @MainActor in
+                guard let manager = self.manager else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                manager.activeTitleDisambiguation = TitleDisambiguationRequest(
+                    fileURL: fileURL,
+                    originalQuery: originalQuery,
+                    candidates: candidates,
+                    completion: { chosen in
+                        continuation.resume(returning: chosen)
+                    }
+                )
+            }
+        }
+    }
+
+    func promptForSubtitleSelection(
+        fileURL: URL,
+        mediaTitle: String,
+        candidates: [SubtitleCandidate]
+    ) async -> SubtitleCandidate? {
+        await withCheckedContinuation { continuation in
+            Task { @MainActor in
+                guard let manager = self.manager else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                manager.activeSubtitlePrompt = SubtitleSelectionRequest(
+                    fileURL: fileURL,
+                    mediaTitle: mediaTitle,
+                    candidates: candidates,
+                    completion: { chosen in
+                        continuation.resume(returning: chosen)
+                    }
+                )
+            }
+        }
+    }
+}
+
 @Observable
 @MainActor
 public final class PipelineManager: PipelineDelegate {
@@ -134,6 +277,11 @@ public final class PipelineManager: PipelineDelegate {
     public var logs: [AppLogMessage] = []
     public var isProcessing: Bool = false
     public var currentItem: QueueItem? = nil
+
+    // Interactive Prompt Requests
+    public var activeTitlePrompt: TitlePromptRequest? = nil
+    public var activeTitleDisambiguation: TitleDisambiguationRequest? = nil
+    public var activeSubtitlePrompt: SubtitleSelectionRequest? = nil
 
     // Direct to Jellyfin Server Queue
     public var jellyfinQueue: [JellyfinUploadItem] = []
@@ -179,6 +327,29 @@ public final class PipelineManager: PipelineDelegate {
         if logs.count > 1000 {
             logs.removeFirst(logs.count - 1000)
         }
+    }
+
+    // MARK: - Prompt Resolution
+
+    public func resolveTitlePrompt(request: TitlePromptRequest, title: String?) {
+        if activeTitlePrompt?.id == request.id {
+            activeTitlePrompt = nil
+        }
+        request.completion(title)
+    }
+
+    public func resolveTitleDisambiguation(request: TitleDisambiguationRequest, candidate: OMDbClient.Candidate?) {
+        if activeTitleDisambiguation?.id == request.id {
+            activeTitleDisambiguation = nil
+        }
+        request.completion(candidate)
+    }
+
+    public func resolveSubtitlePrompt(request: SubtitleSelectionRequest, candidate: SubtitleCandidate?) {
+        if activeSubtitlePrompt?.id == request.id {
+            activeSubtitlePrompt = nil
+        }
+        request.completion(candidate)
     }
 
     // MARK: - Remuxing Queue Management
@@ -244,8 +415,6 @@ public final class PipelineManager: PipelineDelegate {
 
     // MARK: - Unified Queue Updates
 
-    /// Applies optional field changes to a remux queue item in one place.
-    /// Passing `nil` leaves a field unchanged.
     public func updateQueueItem(
         id: UUID,
         status: ItemStatus? = nil,
@@ -282,8 +451,6 @@ public final class PipelineManager: PipelineDelegate {
         }
     }
 
-    /// Applies optional field changes to a Direct to Jellyfin queue item in one place.
-    /// Passing `nil` leaves a field unchanged.
     public func updateJellyfinItem(
         id: UUID,
         status: JellyfinUploadStatus? = nil,
@@ -521,8 +688,6 @@ public final class PipelineManager: PipelineDelegate {
                         )
                     }
 
-                    // A task that was cancelled mid-upload (user hit Stop) must never be
-                    // reported as completed, even if the transfer happens to return.
                     if !Task.isCancelled, self.jellyfinQueue.contains(where: { $0.id == item.id }) {
                         self.updateJellyfinItem(
                             id: item.id,
@@ -534,7 +699,6 @@ public final class PipelineManager: PipelineDelegate {
                     }
                 } catch {
                     if self.jellyfinQueue.contains(where: { $0.id == item.id }) {
-                        // A cancelled task (user hit Stop) should land in the cancelled state, not failed.
                         if Task.isCancelled {
                             self.updateJellyfinItem(
                                 id: item.id,
@@ -568,10 +732,6 @@ public final class PipelineManager: PipelineDelegate {
         jellyfinUploadTask?.cancel()
         jellyfinUploadTask = nil
         SleepAssertionManager.shared.releaseAll()
-        // The upload task owns the uploading state: it clears `isJellyfinUploading`
-        // once it observes the cancellation and unwinds. Clearing it here as well would
-        // allow a retry to start a second upload task while this one is still stopping,
-        // which can race the cancelled task against the fresh upload.
         if let current = currentJellyfinItem {
             updateJellyfinItem(
                 id: current.id,
@@ -583,13 +743,6 @@ public final class PipelineManager: PipelineDelegate {
         AppLogger.warning("Jellyfin upload queue stopped by user", tag: "Jellyfin")
     }
 
-    /// Probes the configured Jellyfin server to confirm it is reachable and has the
-    /// Jellyfin upload plugin installed. Updates `jellyfinDetectionState` so the
-    /// Direct to Jellyfin tab can show or hide accordingly.
-    ///
-    /// The definitive outcomes (plugin present or missing) are cached per server
-    /// URL, so opening Settings or relaunching the app does not re-probe. Pass
-    /// `force: true` (e.g. from the "Test & Detect" button) to bypass the cache.
     public func refreshJellyfinDetection(apiKey: String? = nil, force: Bool = false) async {
         let url = config.jellyfinServerURL.trimmingCharacters(in: .whitespaces)
         guard !url.isEmpty else {
@@ -614,7 +767,6 @@ public final class PipelineManager: PipelineDelegate {
             apiKey: apiKey ?? config.jellyfinApiKey
         )
 
-        // Ignore a stale result if the configured URL changed while probing.
         guard config.jellyfinServerURL.trimmingCharacters(in: .whitespaces) == url else { return }
         jellyfinDetectionState = status
         cacheJellyfinDetection(status, for: url)
@@ -629,8 +781,6 @@ public final class PipelineManager: PipelineDelegate {
         static let serverName = "jellyfinCachedServerName"
     }
 
-    /// Only plugin presence/absence is stable enough to persist. Transient states
-    /// like unauthorized or unreachable are re-probed on the next launch.
     private func isCachedJellyfinState(_ state: JellyfinDetectionState) -> Bool {
         switch state {
         case .detected, .pluginMissing:
@@ -705,15 +855,10 @@ public final class PipelineManager: PipelineDelegate {
         }
     }
 
-    /// Re-runs a stopped or failed remux queue item. When the remux already moved the
-    /// file into the library (completedURL is set) the retry re-queues the file for a
-    /// Direct to Jellyfin upload instead of blindly re-processing the pipeline.
     public func retryQueueItem(id: UUID) {
         guard let idx = queue.firstIndex(where: { $0.id == id }) else { return }
         let item = queue[idx]
 
-        // The file already made it into the library before the upload was stopped,
-        // so retrying only needs to re-run the upload that was cancelled.
         if let completed = item.completedURL, FileManager.default.fileExists(atPath: completed.path) {
             sendToJellyfin(queueItem: item)
             if !isJellyfinUploading {
@@ -743,13 +888,15 @@ public final class PipelineManager: PipelineDelegate {
     public func startProcessing() {
         guard !isProcessing else { return }
         isProcessing = true
+        self.config = PipelineConfig.load()
         AppLogger.info("Pipeline started processing", tag: "Pipeline")
 
         currentTask = Task {
+            let promptProvider = ManagerPromptProvider(manager: self)
             let pipeline = Pipeline(
                 config: self.config,
                 toolRegistry: self.toolRegistry,
-                titlePromptProvider: nil
+                titlePromptProvider: promptProvider
             )
 
             while let nextIndex = self.queue.firstIndex(where: { $0.status == .queued }) {
@@ -772,9 +919,7 @@ public final class PipelineManager: PipelineDelegate {
                         }
 
                         var detail = current.statusDetail
-                        if detail.hasPrefix("Remuxing") ||
-                           detail.hasPrefix("Moving") ||
-                           detail.isEmpty {
+                        if detail.hasPrefix("Remuxing") || detail.hasPrefix("Writing") || detail.hasPrefix("Moving") {
                             detail = "Completed"
                         }
 
@@ -808,6 +953,17 @@ public final class PipelineManager: PipelineDelegate {
             )
         }
         currentItem = nil
+
+        if let p = activeTitlePrompt {
+            resolveTitlePrompt(request: p, title: nil)
+        }
+        if let d = activeTitleDisambiguation {
+            resolveTitleDisambiguation(request: d, candidate: nil)
+        }
+        if let s = activeSubtitlePrompt {
+            resolveSubtitlePrompt(request: s, candidate: nil)
+        }
+
         AppLogger.warning("Pipeline processing stopped by user", tag: "Pipeline")
     }
 
@@ -834,7 +990,6 @@ public final class PipelineManager: PipelineDelegate {
 
             let isCompleted = update.stage == .completed
             let isFailed = update.stage == .failed
-            // Surface pipeline failures so the UI can drop the loading indicator and show the error state.
             let resolvedStatus: ItemStatus? = isCompleted ? .completed : (isFailed ? .failed : nil)
 
             self.updateQueueItem(

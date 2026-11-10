@@ -298,7 +298,36 @@ public struct Pipeline: Sendable {
             )
         }
 
-        // If no match found, prompt user once more for an accurate title or IMDb ID
+        // Title Disambiguation: if no automatic match, search OMDb for closest titles and present ranked choices
+        if matchedMovie == nil, config.promptForAmbiguousTitles, let promptProvider = titlePromptProvider {
+            let searchTitle = aiSuggestion?.searchTitle ?? parsed.title
+            let searchYear = parsed.yearHint.flatMap(Int.init) ?? aiSuggestion?.year
+            let candidates = await omdbClient.search(title: searchTitle, year: searchYear)
+            if !candidates.isEmpty {
+                await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
+                    fileURL: fileURL,
+                    stage: .awaitingTitle,
+                    progressFraction: 0.38,
+                    detail: "Multiple title matches found for '\(searchTitle)'. Please confirm the correct title."
+                ))
+
+                if let chosen = await promptProvider.promptForTitleDisambiguation(
+                    fileURL: workingURL,
+                    originalQuery: searchTitle,
+                    candidates: candidates
+                ) {
+                    matchedMovie = MovieMatch(
+                        title: chosen.title,
+                        year: chosen.year,
+                        imdbId: chosen.imdbId,
+                        votes: chosen.votes,
+                        runtimeMinutes: chosen.runtimeMinutes
+                    )
+                }
+            }
+        }
+
+        // If still no match found, prompt user once more for a custom title or IMDb ID
         if matchedMovie == nil, let promptProvider = titlePromptProvider {
             AppLogger.warning("No automatic IMDb match for '\(parsed.title)'. Requesting user input…")
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -361,7 +390,7 @@ public struct Pipeline: Sendable {
             let r = try? NSRegularExpression(pattern: cutPattern, options: .caseInsensitive)
             let inTitle = r?.firstMatch(in: parsed.title, range: NSRange(parsed.title.startIndex..., in: parsed.title)) != nil
             let inName = r?.firstMatch(in: fileName, range: NSRange(fileName.startIndex..., in: fileName)) != nil
-            return inTitle || inName
+            return inTitle || inName || config.preferExtendedCuts
         }()
 
         await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -375,25 +404,25 @@ public struct Pipeline: Sendable {
         let mediaURL = workingURL
         async let cropTask = try? cropDetector.detectCrop(fileURL: mediaURL)
         async let durationTask = try? inspector.getDecodedDuration(fileURL: mediaURL)
-        async let hasEmbeddedSubRipTask = try? inspector.hasEnglishSubRipSubtitle(fileURL: mediaURL)
+        async let hasEligibleEmbeddedTask = try? inspector.hasEligibleEmbeddedSubtitle(fileURL: mediaURL, config: config)
         async let videoFPSTask = try? inspector.getVideoFPS(fileURL: mediaURL)
 
-        let hasEmbeddedSubRip = (await hasEmbeddedSubRipTask) ?? false
+        let hasEmbeddedSub = (await hasEligibleEmbeddedTask) ?? false
         let videoDuration = await durationTask
         let videoFPS = await videoFPSTask
 
         var srtData: Data? = nil
         var embeddedSrt = false
 
-        if !forceSubs && hasEmbeddedSubRip {
-            AppLogger.info("Embedded English SubRip subtitle found — keeping it.")
+        if !forceSubs && hasEmbeddedSub && config.preferEmbeddedSubs {
+            AppLogger.info("Embedded subtitle matching retention policy found — keeping it.")
             embeddedSrt = true
         } else {
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                 fileURL: fileURL,
                 stage: .processingSubtitles,
                 progressFraction: 0.65,
-                detail: "Fetching matching English subtitles…"
+                detail: "Fetching matching subtitles from OpenSubtitles…"
             ))
             srtData = await openSubtitlesClient.fetchSubtitles(
                 imdbId: movie.imdbId,
@@ -403,9 +432,12 @@ public struct Pipeline: Sendable {
                 mkvURL: workingURL,
                 videoDuration: videoDuration,
                 videoFPS: videoFPS,
-                processor: subtitleProcessor
+                processor: subtitleProcessor,
+                config: config,
+                promptProvider: titlePromptProvider,
+                mediaTitle: "\(movie.title) (\(movie.year))"
             )
-            embeddedSrt = (srtData == nil) && hasEmbeddedSubRip
+            embeddedSrt = (srtData == nil) && hasEmbeddedSub
         }
 
         let crop = await cropTask
@@ -415,7 +447,9 @@ public struct Pipeline: Sendable {
         var normalizedEmbedded = false
 
         if embeddedSrt {
-            normalizedEmbedded = (try? await trackRemuxer.normalizeEmbeddedSubtitles(fileURL: workingURL)) ?? false
+            if config.normalizeEmbeddedAllCaps {
+                normalizedEmbedded = (try? await trackRemuxer.normalizeEmbeddedSubtitles(fileURL: workingURL, config: config)) ?? false
+            }
             Notifier.notify(
                 title: "Rip Pipeline",
                 message: "\(movie.title) (\(movie.year))",
@@ -428,10 +462,18 @@ public struct Pipeline: Sendable {
                 progressFraction: 0.75,
                 detail: "Cleaning ads and syncing subtitle speech…"
             ))
-            subData = SubtitleProcessor.stripSubtitleAds(data: subData)
-            subData = SubtitleProcessor.stripSubtitleFormatting(data: subData)
-            subData = SubtitleProcessor.normalizeSubtitleCase(data: subData)
-            subData = await subtitleProcessor.syncSubtitlesMovie(srtData: subData, mkvURL: workingURL)
+            if config.stripSubtitleAds {
+                subData = SubtitleProcessor.stripSubtitleAds(data: subData)
+            }
+            if config.stripSubtitleFormatting {
+                subData = SubtitleProcessor.stripSubtitleFormatting(data: subData)
+            }
+            if config.normalizeSubtitleCase {
+                subData = SubtitleProcessor.normalizeSubtitleCase(data: subData)
+            }
+            if config.syncSubtitlesAudio {
+                subData = await subtitleProcessor.syncSubtitlesMovie(srtData: subData, mkvURL: workingURL)
+            }
 
             let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".pipeline_sub.srt")
             if (try? subData.write(to: tmp)) != nil {
@@ -453,11 +495,13 @@ public struct Pipeline: Sendable {
             fileURL: fileURL,
             stage: .remuxingTracks,
             progressFraction: 0.85,
-            detail: "Remuxing clean English audio and subtitle tracks…"
+            detail: "Remuxing clean audio and subtitle tracks…"
         ))
 
-        try? await trackRemuxer.stripTracks(fileURL: workingURL, srtURL: srtTmpURL)
-        try? await trackRemuxer.clearSubtitleDefaults(fileURL: workingURL)
+        try? await trackRemuxer.stripTracks(fileURL: workingURL, srtURL: srtTmpURL, config: config)
+        if config.clearDefaultSubtitleFlags {
+            try? await trackRemuxer.clearSubtitleDefaults(fileURL: workingURL, config: config)
+        }
         Notifier.notify(title: "Rip Pipeline", message: "\(movie.title) (\(movie.year))", subtitle: "Tracks remuxed")
 
         if let validCrop = crop {
@@ -528,8 +572,6 @@ public struct Pipeline: Sendable {
                 )
                 AppLogger.info("Direct Jellyfin upload completed: \(dest.lastPathComponent)")
             } catch {
-                // A cancelled task means the user hit Stop during the upload — keep the
-                // queue item in the cancelled state instead of treating it as a failure.
                 if Task.isCancelled {
                     AppLogger.info("Jellyfin upload cancelled: \(dest.lastPathComponent)")
                     return
@@ -538,7 +580,6 @@ public struct Pipeline: Sendable {
                 uploadError = error
             }
 
-            // Never fall through to "completed" if the upload did not actually finish.
             if let uploadError {
                 await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                     fileURL: fileURL,
@@ -631,8 +672,7 @@ public struct Pipeline: Sendable {
 
         var series = await omdbClient.lookupSeries(title: seriesRaw)
 
-        // If the raw name fails (for example a typo like "Pysch"), ask the
-        // on-device model for a cleaned-up series name and retry once.
+        // If the raw name fails, ask the on-device model for a cleaned-up series name and retry once.
         if series == nil,
            MediaQueryAssistant.isAvailable,
            let ai = await MediaQueryAssistant.suggestSearchName(forFileNamed: stem),
@@ -640,6 +680,31 @@ public struct Pipeline: Sendable {
            ai.searchTitle.caseInsensitiveCompare(seriesRaw) != .orderedSame {
             AppLogger.warning("No IMDb match for '\(seriesRaw)' — retrying with on-device query '\(ai.searchTitle)'")
             series = await omdbClient.lookupSeries(title: ai.searchTitle, alternateTitles: [seriesRaw])
+        }
+
+        // Title Disambiguation: if no series match, search OMDb for closest TV series and present ranked choices
+        if series == nil, config.promptForAmbiguousTitles, let promptProvider = titlePromptProvider {
+            let searchTitle = seriesRaw
+            let candidates = await omdbClient.search(title: searchTitle, type: "series")
+            if !candidates.isEmpty {
+                await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
+                    fileURL: fileURL,
+                    stage: .awaitingTitle,
+                    progressFraction: 0.38,
+                    detail: "Multiple series matches found for '\(searchTitle)'. Please confirm the correct TV show."
+                ))
+                if let chosen = await promptProvider.promptForTitleDisambiguation(
+                    fileURL: activeURL,
+                    originalQuery: searchTitle,
+                    candidates: candidates
+                ) {
+                    series = (
+                        title: chosen.title,
+                        year: chosen.year,
+                        imdbId: chosen.imdbId
+                    )
+                }
+            }
         }
 
         guard let series = series else {
@@ -683,18 +748,18 @@ public struct Pipeline: Sendable {
 
         async let cropTask = try? cropDetector.detectCrop(fileURL: activeURL)
         async let durationTask = try? inspector.getDecodedDuration(fileURL: activeURL)
-        async let hasEmbeddedSubRipTask = try? inspector.hasEnglishSubRipSubtitle(fileURL: activeURL)
+        async let hasEligibleEmbeddedTask = try? inspector.hasEligibleEmbeddedSubtitle(fileURL: activeURL, config: config)
         async let videoFPSTask = try? inspector.getVideoFPS(fileURL: activeURL)
 
-        let hasEmbeddedSubRip = (await hasEmbeddedSubRipTask) ?? false
+        let hasEmbeddedSub = (await hasEligibleEmbeddedTask) ?? false
         let videoDuration = await durationTask
         let videoFPS = await videoFPSTask
 
         var srtData: Data? = nil
         var embeddedSrt = false
 
-        if !forceSubs && hasEmbeddedSubRip {
-            AppLogger.info("Embedded English SubRip subtitle found — keeping it.")
+        if !forceSubs && hasEmbeddedSub && config.preferEmbeddedSubs {
+            AppLogger.info("Embedded subtitle matching retention policy found — keeping it.")
             embeddedSrt = true
         } else {
             await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
@@ -711,9 +776,12 @@ public struct Pipeline: Sendable {
                 mkvURL: activeURL,
                 videoDuration: videoDuration,
                 videoFPS: videoFPS,
-                processor: subtitleProcessor
+                processor: subtitleProcessor,
+                config: config,
+                promptProvider: titlePromptProvider,
+                mediaTitle: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))"
             )
-            embeddedSrt = (srtData == nil) && hasEmbeddedSubRip
+            embeddedSrt = (srtData == nil) && hasEmbeddedSub
         }
 
         let crop = await cropTask
@@ -722,7 +790,9 @@ public struct Pipeline: Sendable {
         var normalizedEmbedded = false
 
         if embeddedSrt {
-            normalizedEmbedded = (try? await trackRemuxer.normalizeEmbeddedSubtitles(fileURL: activeURL)) ?? false
+            if config.normalizeEmbeddedAllCaps {
+                normalizedEmbedded = (try? await trackRemuxer.normalizeEmbeddedSubtitles(fileURL: activeURL, config: config)) ?? false
+            }
             Notifier.notify(
                 title: "Rip Pipeline",
                 message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))",
@@ -735,15 +805,23 @@ public struct Pipeline: Sendable {
                 progressFraction: 0.75,
                 detail: "Synchronizing TV episode subtitles (alass)…"
             ))
-            subData = SubtitleProcessor.stripSubtitleAds(data: subData)
-            subData = SubtitleProcessor.stripSubtitleFormatting(data: subData)
-            subData = SubtitleProcessor.normalizeSubtitleCase(data: subData)
-            subData = await subtitleProcessor.syncSubtitlesTV(
-                srtData: subData,
-                mkvURL: activeURL,
-                videoDuration: videoDuration,
-                sourceType: sourceType
-            )
+            if config.stripSubtitleAds {
+                subData = SubtitleProcessor.stripSubtitleAds(data: subData)
+            }
+            if config.stripSubtitleFormatting {
+                subData = SubtitleProcessor.stripSubtitleFormatting(data: subData)
+            }
+            if config.normalizeSubtitleCase {
+                subData = SubtitleProcessor.normalizeSubtitleCase(data: subData)
+            }
+            if config.syncSubtitlesAudio {
+                subData = await subtitleProcessor.syncSubtitlesTV(
+                    srtData: subData,
+                    mkvURL: activeURL,
+                    videoDuration: videoDuration,
+                    sourceType: sourceType
+                )
+            }
 
             let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".pipeline_sub.srt")
             if (try? subData.write(to: tmp)) != nil {
@@ -768,8 +846,10 @@ public struct Pipeline: Sendable {
             detail: "Remuxing tracks…"
         ))
 
-        try? await trackRemuxer.stripTracks(fileURL: activeURL, srtURL: srtTmpURL)
-        try? await trackRemuxer.clearSubtitleDefaults(fileURL: activeURL)
+        try? await trackRemuxer.stripTracks(fileURL: activeURL, srtURL: srtTmpURL, config: config)
+        if config.clearDefaultSubtitleFlags {
+            try? await trackRemuxer.clearSubtitleDefaults(fileURL: activeURL, config: config)
+        }
         Notifier.notify(title: "Rip Pipeline", message: "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episode))", subtitle: "Tracks remuxed")
 
         if let validCrop = crop {
@@ -846,8 +926,6 @@ public struct Pipeline: Sendable {
                 )
                 AppLogger.info("Direct Jellyfin episode upload completed: \(dest.lastPathComponent)")
             } catch {
-                // A cancelled task means the user hit Stop during the upload — keep the
-                // queue item in the cancelled state instead of treating it as a failure.
                 if Task.isCancelled {
                     AppLogger.info("Jellyfin upload cancelled: \(dest.lastPathComponent)")
                     return
@@ -856,7 +934,6 @@ public struct Pipeline: Sendable {
                 uploadError = error
             }
 
-            // Never fall through to "completed" if the upload did not actually finish.
             if let uploadError {
                 await delegate?.pipelineDidUpdateProgress(PipelineProgressUpdate(
                     fileURL: fileURL,

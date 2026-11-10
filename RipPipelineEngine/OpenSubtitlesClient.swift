@@ -99,9 +99,12 @@ public actor OpenSubtitlesClient {
         mkvURL: URL? = nil,
         videoDuration: Double? = nil,
         videoFPS: Double? = nil,
-        processor: SubtitleProcessor
+        processor: SubtitleProcessor,
+        config: PipelineConfig = PipelineConfig.load(),
+        promptProvider: PipelinePromptProvider? = nil,
+        mediaTitle: String = ""
     ) async -> Data? {
-        AppLogger.info("Fetching subtitles for \(imdbId) (source=\(sourceType.rawValue))…")
+        AppLogger.info("Fetching subtitles for \(imdbId) (source=\(sourceType.rawValue))...")
         guard !apiKey.isEmpty && apiKey != "YOUR_OS_KEY_HERE" else {
             AppLogger.warning("No OpenSubtitles API key configured.")
             return nil
@@ -109,9 +112,10 @@ public actor OpenSubtitlesClient {
 
         let imdbNum = imdbId.hasPrefix("tt") ? String(imdbId.dropFirst(2)) : imdbId
         var urlComp = URLComponents(string: "\(Self.baseURL)/subtitles")
+        let langCode = config.subtitleLanguage.isEmpty ? "en" : config.subtitleLanguage
         urlComp?.queryItems = [
             URLQueryItem(name: "imdb_id", value: imdbNum),
-            URLQueryItem(name: "languages", value: "en"),
+            URLQueryItem(name: "languages", value: langCode),
             URLQueryItem(name: "type", value: mediaType)
         ]
         guard let url = urlComp?.url else { return nil }
@@ -130,11 +134,13 @@ public actor OpenSubtitlesClient {
 
         let hdtvRegex = try? NSRegularExpression(pattern: #"\bhdtv\b"#, options: .caseInsensitive)
         let hiTagRegex = try? NSRegularExpression(pattern: #"\b(?:hi|sdh|pcc)\b"#, options: .caseInsensitive)
+        let cutRegex = try? NSRegularExpression(pattern: #"extended|redux|director'?s cut|unrated|special edition"#, options: .caseInsensitive)
 
-        var candidates: [SubtitleCandidate] = []
+        var allCandidates: [SubtitleCandidate] = []
         var skippedFPS = 0
         var skippedHDTV = 0
         var skippedHI = 0
+        var skippedCommentary = 0
 
         for item in items {
             guard let attrs = item["attributes"] as? [String: Any],
@@ -149,91 +155,124 @@ public actor OpenSubtitlesClient {
             let releaseLower = release.lowercased()
 
             let subFPS = (attrs["fps"] as? Double) ?? 0.0
-            if let vFPS = videoFPS, subFPS > 0, abs(subFPS - vFPS) > 0.5 {
+            let isHI = ((attrs["hearing_impaired"] as? Bool) ?? false) || (hiTagRegex?.firstMatch(in: releaseLower, range: NSRange(releaseLower.startIndex..., in: releaseLower)) != nil)
+            let isHDTV = (hdtvRegex?.firstMatch(in: release, range: NSRange(release.startIndex..., in: release)) != nil) || releaseLower.contains("hdtv")
+            let isCommentary = releaseLower.contains("commentary")
+            let isCutVariant = (cutRegex?.firstMatch(in: releaseLower, range: NSRange(releaseLower.startIndex..., in: releaseLower)) != nil)
+
+            var rejections: [String] = []
+
+            if config.matchVideoFPS, let vFPS = videoFPS, subFPS > 0, abs(subFPS - vFPS) > 0.5 {
+                rejections.append(String(format: "FPS mismatch (%.3f vs video %.3f)", subFPS, vFPS))
                 skippedFPS += 1
-                continue
             }
 
-            if let r = hdtvRegex, r.firstMatch(in: release, range: NSRange(release.startIndex..., in: release)) != nil {
+            if config.excludeHDTV && isHDTV {
+                rejections.append("HDTV broadcast release (timing often contains commercial cuts)")
                 skippedHDTV += 1
-                continue
             }
 
-            let isHI = (attrs["hearing_impaired"] as? Bool) ?? false
-            if isHI || (hiTagRegex?.firstMatch(in: releaseLower, range: NSRange(releaseLower.startIndex..., in: releaseLower)) != nil) {
+            if config.excludeHearingImpaired && isHI {
+                rejections.append("Hearing Impaired / SDH (closed captions)")
                 skippedHI += 1
-                continue
+            }
+
+            if config.excludeCommentary && isCommentary {
+                rejections.append("Audio commentary subtitle")
+                skippedCommentary += 1
+            }
+
+            if !preferExtended && !config.preferExtendedCuts && isCutVariant {
+                rejections.append("Cut variant (extended / unrated / director's cut)")
             }
 
             let downloads = (attrs["download_count"] as? Int) ?? 0
-            let score = scoreRelease(release: release, sourceType: sourceType, preferExtended: preferExtended)
-            await candidates.append(SubtitleCandidate(
+            let score = scoreRelease(release: release, sourceType: sourceType, preferExtended: preferExtended || config.preferExtendedCuts)
+            allCandidates.append(SubtitleCandidate(
                 fileId: fileId,
                 release: release,
                 score: score,
                 downloadCount: downloads,
                 hearingImpaired: isHI,
-                fps: subFPS > 0 ? subFPS : nil
+                fps: subFPS > 0 ? subFPS : nil,
+                isHDTV: isHDTV,
+                isCommentary: isCommentary,
+                isCutVariant: isCutVariant,
+                rejectionReasons: rejections
             ))
         }
 
-        if skippedFPS > 0 || skippedHDTV > 0 || skippedHI > 0 {
-            AppLogger.info("OpenSubtitles: filtered out \(skippedFPS) fps-mismatch, \(skippedHDTV) HDTV, \(skippedHI) hearing-impaired release(s).")
+        if skippedFPS > 0 || skippedHDTV > 0 || skippedHI > 0 || skippedCommentary > 0 {
+            AppLogger.info("OpenSubtitles: filtered out \(skippedFPS) fps-mismatch, \(skippedHDTV) HDTV, \(skippedHI) HI, \(skippedCommentary) commentary release(s).")
         }
 
-        guard !candidates.isEmpty else {
-            AppLogger.info("OpenSubtitles: no non-HDTV/non-HI/fps-matched results found.")
-            return nil
-        }
+        var eligibleCandidates = allCandidates.filter { $0.rejectionReasons.isEmpty }
+        eligibleCandidates.sort { ($0.score, $0.downloadCount) > ($1.score, $1.downloadCount) }
 
-        candidates.sort { ($0.score, $0.downloadCount) > ($1.score, $1.downloadCount) }
-        let best = candidates[0]
-        AppLogger.info("OpenSubtitles: \(candidates.count) result(s), best score=\(best.score) release='\(best.release)'")
+        if !eligibleCandidates.isEmpty {
+            let best = eligibleCandidates[0]
+            AppLogger.info("OpenSubtitles: \(eligibleCandidates.count) eligible result(s), best score=\(best.score) release='\(best.release)'")
 
-        let sourceKeywords = (sourceType == .bluray) ? Self.blurayKeywords : Self.dvdKeywords
-        if !sourceKeywords.contains(where: { best.release.lowercased().contains($0) }) {
-            AppLogger.info("No \(sourceType.rawValue)-tagged subtitle release available for this title — using best broadcast/web match instead. Ad-break/cut timing may differ from the disc.")
-        }
-
-        // Fetch reference transcripts for content verification
-        let references = await fetchReferenceTranscripts(candidates: candidates)
-
-        // Walk candidates best-first
-        for cand in candidates {
-            guard let content = await downloadSubtitle(fileId: cand.fileId, release: cand.release) else {
-                continue
+            let sourceKeywords = (sourceType == .bluray) ? Self.blurayKeywords : Self.dvdKeywords
+            if !sourceKeywords.contains(where: { best.release.lowercased().contains($0) }) {
+                AppLogger.info("No \(sourceType.rawValue)-tagged subtitle release available for this title — using best broadcast/web match instead.")
             }
 
-            // Duration check on raw subtitle (end check only)
-            if await !SubtitleProcessor.durationMatches(srtData: content, videoDuration: videoDuration, mediaType: mediaType, checkStart: false) {
-                AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed the duration check — trying next-best release.")
-                continue
-            }
+            let references = config.enforceContentCheck ? await fetchReferenceTranscripts(candidates: eligibleCandidates, config: config) : []
 
-            // Content vocabulary check
-            if !contentMatches(content: content, references: references) {
-                AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed the content check — likely wrong movie/language or bad translation.")
-                continue
-            }
-
-            // Alass alignment check (if MKV file is available)
-            if let mkvURL = mkvURL {
-                guard let synced = await processor.runAlass(srtData: content, mkvURL: mkvURL) else {
-                    AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed alignment (different cut or alass error) — trying next-best.")
+            for cand in eligibleCandidates {
+                guard let content = await downloadSubtitle(fileId: cand.fileId, release: cand.release, config: config) else {
                     continue
                 }
-                if await !SubtitleProcessor.durationMatches(srtData: synced, videoDuration: videoDuration, mediaType: mediaType, checkStart: true) {
-                    AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed post-alignment start/end check — trying next-best.")
-                    continue
-                }
-            }
 
-            AppLogger.info("OpenSubtitles: selected '\(cand.release)' (score=\(cand.score) dl=\(cand.downloadCount) file_id=\(cand.fileId))")
-            AppLogger.info("Got subtitles from OpenSubtitles.")
-            return content
+                if config.enforceDurationCheck {
+                    if await !SubtitleProcessor.durationMatches(srtData: content, videoDuration: videoDuration, mediaType: mediaType, checkStart: false) {
+                        AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed duration check — trying next.")
+                        continue
+                    }
+                }
+
+                if config.enforceContentCheck && !references.isEmpty {
+                    if !contentMatches(content: content, references: references) {
+                        AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed content check — trying next.")
+                        continue
+                    }
+                }
+
+                if config.enforceStructuralAlignmentCheck, let mkvURL = mkvURL {
+                    guard let synced = await processor.runAlass(srtData: content, mkvURL: mkvURL) else {
+                        AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed alass alignment — trying next.")
+                        continue
+                    }
+                    if await !SubtitleProcessor.durationMatches(srtData: synced, videoDuration: videoDuration, mediaType: mediaType, checkStart: true) {
+                        AppLogger.info("OpenSubtitles '\(cand.release)' (dl=\(cand.downloadCount)) failed post-alignment duration check — trying next.")
+                        continue
+                    }
+                }
+
+                AppLogger.info("OpenSubtitles: selected '\(cand.release)' (score=\(cand.score) dl=\(cand.downloadCount))")
+                return content
+            }
         }
 
-        AppLogger.warning("OpenSubtitles: no candidate passed the duration/content/structure checks.")
+        AppLogger.warning("OpenSubtitles: no eligible candidate passed the duration/content/structure checks.")
+
+        // Prompt user with ranked alternative fallback options if enabled
+        if config.promptForSubtitleFallback, let promptProvider = promptProvider, !allCandidates.isEmpty {
+            AppLogger.info("Prompting user with ranked alternative subtitle candidates...")
+            let sortedCandidates = allCandidates.sorted { ($0.score, $0.downloadCount) > ($1.score, $1.downloadCount) }
+            if let selected = await promptProvider.promptForSubtitleSelection(
+                fileURL: mkvURL ?? URL(fileURLWithPath: ""),
+                mediaTitle: mediaTitle.isEmpty ? imdbId : mediaTitle,
+                candidates: sortedCandidates
+            ) {
+                AppLogger.info("User selected fallback subtitle candidate: '\(selected.release)'")
+                if let content = await downloadSubtitle(fileId: selected.fileId, release: selected.release, config: config) {
+                    return content
+                }
+            }
+        }
+
         return nil
     }
 
@@ -258,7 +297,7 @@ public actor OpenSubtitlesClient {
 
     // MARK: - Download Subtitle
 
-    private func downloadSubtitle(fileId: String, release: String) async -> Data? {
+    private func downloadSubtitle(fileId: String, release: String, config: PipelineConfig = PipelineConfig.load()) async -> Data? {
         if let cached = downloadCache[fileId] {
             return cached
         }
@@ -269,7 +308,8 @@ public actor OpenSubtitlesClient {
         let headers = await makeHeaders()
         for (k, v) in headers { request.setValue(v, forHTTPHeaderField: k) }
 
-        let body: [String: Any] = ["file_id": Int(fileId) ?? 0, "sub_format": "srt"]
+        let subFormat = config.subtitleFormat.isEmpty ? "srt" : config.subtitleFormat
+        let body: [String: Any] = ["file_id": Int(fileId) ?? 0, "sub_format": subFormat]
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
         for attempt in 0..<3 {
@@ -288,7 +328,7 @@ public actor OpenSubtitlesClient {
             } catch {
                 if attempt < 2 {
                     let wait = UInt64((attempt + 1) * 5)
-                    AppLogger.warning("OpenSubtitles download attempt \(attempt + 1) failed — retrying in \(wait)s…")
+                    AppLogger.warning("OpenSubtitles download attempt \(attempt + 1) failed — retrying in \(wait)s...")
                     try? await Task.sleep(nanoseconds: wait * 1_000_000_000)
                 }
             }
@@ -300,7 +340,7 @@ public actor OpenSubtitlesClient {
 
     // MARK: - Content Dialogue Reference Check
 
-    private func fetchReferenceTranscripts(candidates: [SubtitleCandidate]) async -> [Data] {
+    private func fetchReferenceTranscripts(candidates: [SubtitleCandidate], config: PipelineConfig) async -> [Data] {
         let ranked = candidates.sorted { $0.downloadCount > $1.downloadCount }
         let badTagRegex = try? NSRegularExpression(pattern: #"\b(?:hi|sdh|pcc|commentary)\b"#, options: .caseInsensitive)
         var refs: [Data] = []
@@ -309,7 +349,7 @@ public actor OpenSubtitlesClient {
             if badTagRegex?.firstMatch(in: cand.release, range: NSRange(cand.release.startIndex..., in: cand.release)) != nil {
                 continue
             }
-            if let data = await downloadSubtitle(fileId: cand.fileId, release: cand.release) {
+            if let data = await downloadSubtitle(fileId: cand.fileId, release: cand.release, config: config) {
                 refs.append(data)
             }
             if refs.count >= 2 {
@@ -326,7 +366,7 @@ public actor OpenSubtitlesClient {
     private func contentWordSet(srtData: Data) -> Set<String> {
         let text = SubtitleProcessor.decodeSRT(data: srtData)
         let tagRegex = try? NSRegularExpression(pattern: #"</?[a-z][^>]*>"#, options: .caseInsensitive)
-        let bracketRegex = try? NSRegularExpression(pattern: #"[\[\(].*?[\]\)]"#, options: [])
+        let bracketRegex = try? NSRegularExpression(pattern: #"[\\[\\(].*?[\\]\\)]"#, options: [])
 
         var cleaned = tagRegex?.stringByReplacingMatches(in: text, range: NSRange(text.startIndex..., in: text), withTemplate: " ") ?? text
         cleaned = bracketRegex?.stringByReplacingMatches(in: cleaned, range: NSRange(cleaned.startIndex..., in: cleaned), withTemplate: " ") ?? cleaned
