@@ -115,6 +115,52 @@ struct ContentView: View {
             .navigationTitle(selectedTab.rawValue)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
+                    #if DEBUG
+                    Menu {
+                        Section("Remux Queue") {
+                            Button("Populate Remux Queue") {
+                                ScreenshotDemoHelper.populateRemuxQueue(manager: manager)
+                                selectedTab = .remux
+                            }
+                        }
+
+                        Section("Prompt Sheets") {
+                            Button("Show Disc Rip Title Sheet") {
+                                ScreenshotDemoHelper.triggerDiscRipTitlePrompt(manager: manager)
+                            }
+                            Button("Show Title Disambiguation Sheet") {
+                                ScreenshotDemoHelper.triggerTitleDisambiguation(manager: manager)
+                            }
+                            Button("Show Subtitle Selection Sheet") {
+                                ScreenshotDemoHelper.triggerSubtitleSelection(manager: manager)
+                            }
+                        }
+
+                        Section("Direct to Jellyfin") {
+                            Button("Populate Jellyfin Upload Queue") {
+                                ScreenshotDemoHelper.populateJellyfinQueue(manager: manager)
+                                selectedTab = .jellyfin
+                            }
+                        }
+
+                        Section("Activity Logs") {
+                            Button("Populate Activity Logs") {
+                                ScreenshotDemoHelper.populateLogs(manager: manager)
+                                selectedTab = .logs
+                            }
+                        }
+
+                        Divider()
+
+                        Button("Reset Demo Data", role: .destructive) {
+                            ScreenshotDemoHelper.resetAllMockData(manager: manager)
+                        }
+                    } label: {
+                        Label("Demo", systemImage: "sparkles")
+                    }
+                    .help("Populate demo data for README screenshots")
+                    #endif
+
                     if selectedTab == .remux {
                         Button {
                             chooseRemuxFiles()

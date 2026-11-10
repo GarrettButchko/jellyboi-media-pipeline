@@ -34,7 +34,7 @@ struct SubtitleSelectionSheet: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.sub.opacity(0.5), in: RoundedRectangle(cornerRadius: 6))
+                .background(Color.sub, in: RoundedRectangle(cornerRadius: 6))
             
             // Subtitle candidates list
             ScrollView {
@@ -175,7 +175,7 @@ private struct SubtitleCandidateRow: View {
         }
         .frame(maxWidth: .infinity)
         .padding(10)
-        .background(Color.sub.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+        .background(Color.sub, in: RoundedRectangle(cornerRadius: 8))
     }
     
     private func badge(text: String, color: Color) -> some View {
