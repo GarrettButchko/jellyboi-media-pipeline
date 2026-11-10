@@ -50,7 +50,6 @@ struct SettingsView: View {
     // Jellyfin Direct Upload & Plugin State
     @AppStorage("jellyfinServerURL") private var jellyfinServerURL: String = ""
     @KeychainStorage("jellyfinApiKey") private var jellyfinApiKey: String = ""
-    @AppStorage("jellyfinUploadEnabled") private var jellyfinUploadEnabled: Bool = false
     @AppStorage("jellyfinMovieLibraryId") private var jellyfinMovieLibraryId: String = ""
     @AppStorage("jellyfinTvLibraryId") private var jellyfinTvLibraryId: String = ""
     @AppStorage("jellyfinMovieServerPath") private var jellyfinMovieServerPath: String = ""
@@ -181,7 +180,6 @@ struct SettingsView: View {
             detectedLibraries = []
         }
         .onChange(of: jellyfinApiKey) { _, _ in syncToConfig() }
-        .onChange(of: jellyfinUploadEnabled) { _, _ in syncToConfig() }
         .onChange(of: jellyfinMovieLibraryId) { _, _ in syncToConfig() }
         .onChange(of: jellyfinTvLibraryId) { _, _ in syncToConfig() }
         .onChange(of: jellyfinMovieServerPath) { _, _ in syncToConfig() }
@@ -1032,7 +1030,6 @@ struct SettingsView: View {
 
         if jellyfinServerURL.isEmpty && !config.jellyfinServerURL.isEmpty { jellyfinServerURL = config.jellyfinServerURL }
         if jellyfinApiKey.isEmpty && !config.jellyfinApiKey.isEmpty { jellyfinApiKey = config.jellyfinApiKey }
-        if !jellyfinUploadEnabled && config.jellyfinUploadEnabled { jellyfinUploadEnabled = config.jellyfinUploadEnabled }
         if jellyfinMovieLibraryId.isEmpty && !config.jellyfinMovieLibraryId.isEmpty { jellyfinMovieLibraryId = config.jellyfinMovieLibraryId }
         if jellyfinTvLibraryId.isEmpty && !config.jellyfinTvLibraryId.isEmpty { jellyfinTvLibraryId = config.jellyfinTvLibraryId }
         if jellyfinMovieServerPath.isEmpty && !config.jellyfinMovieServerPath.isEmpty { jellyfinMovieServerPath = config.jellyfinMovieServerPath }
@@ -1092,7 +1089,6 @@ struct SettingsView: View {
 
         manager.config.jellyfinServerURL = jellyfinServerURL
         manager.config.jellyfinApiKey = jellyfinApiKey
-        manager.config.jellyfinUploadEnabled = jellyfinUploadEnabled
         manager.config.jellyfinMovieLibraryId = jellyfinMovieLibraryId
         manager.config.jellyfinTvLibraryId = jellyfinTvLibraryId
         manager.config.jellyfinMovieServerPath = jellyfinMovieServerPath

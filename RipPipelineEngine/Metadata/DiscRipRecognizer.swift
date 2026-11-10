@@ -41,15 +41,15 @@ public struct DiscRipDetectionResult: Sendable {
 /// Detects whether an MKV video file is a raw rip straight from a physical disc
 public struct DiscRipRecognizer: Sendable {
 
-    // Regex for MakeMKV generic track: title_t00, title00, t00, etc.
+    // Regex for MakeMKV generic track: title_t00, title00, t00, t_110, track_01, etc.
     private static let genericMakeMKVRegex = try? NSRegularExpression(
-        pattern: #"^(?:title[._-]?)?t\d{1,3}$"#,
+        pattern: #"^(?:(?:title|track)[._-]?)?[tT][._-]?\d{1,3}$|^(?:title|track)[._-]?\d{1,3}$"#,
         options: .caseInsensitive
     )
 
-    // Regex for MakeMKV disc volume with track suffix: e.g. THE_MATRIX_t00, AVATAR_DISC1_t01
+    // Regex for MakeMKV disc volume with track suffix: e.g. THE_MATRIX_t00, THE_MATRIX_t_110, AVATAR_DISC1_t01
     private static let discWithTrackRegex = try? NSRegularExpression(
-        pattern: #"^(.*?)[._-]t\d{1,3}$"#,
+        pattern: #"^(.*?)[._-][tT][._-]?\d{1,3}$"#,
         options: .caseInsensitive
     )
 
@@ -66,7 +66,7 @@ public struct DiscRipRecognizer: Sendable {
     )
 
     // Generic placeholders
-    private static let genericNames: Set<String> = [
+    public static let genericNames: Set<String> = [
         "dvd", "dvd_video", "dvdvideo", "video_ts", "videots",
         "bdmv", "bluray", "blu_ray", "untitled", "unknown",
         "movie", "disc", "disk", "cd", "track", "no_name"
@@ -84,51 +84,30 @@ public struct DiscRipRecognizer: Sendable {
         let trimmedStem = stem.trimmingCharacters(in: .whitespacesAndNewlines)
         let lowerStem = trimmedStem.lowercased()
 
-        // 1. Check generic MakeMKV name (title_t00, t00, title00)
-        if let regex = genericMakeMKVRegex,
-           regex.firstMatch(in: trimmedStem, range: NSRange(trimmedStem.startIndex..., in: trimmedStem)) != nil {
-            return DiscRipDetectionResult(
-                isDiscRip: true,
-                reason: .genericMakeMKV,
-                suggestedTitle: nil
-            )
-        }
+        // 1-4. Check generic disc patterns and labels (MakeMKV, DVD VTS, Blu-ray streams, generic words/labels)
+        let stemRange = NSRange(trimmedStem.startIndex..., in: trimmedStem)
+        let matchedReason: DiscRipReason? = {
+            if genericMakeMKVRegex?.firstMatch(in: trimmedStem, range: stemRange) != nil {
+                return .genericMakeMKV
+            }
+            if dvdVtsRegex?.firstMatch(in: trimmedStem, range: stemRange) != nil {
+                return .dvdStream
+            }
+            if blurayStreamRegex?.firstMatch(in: trimmedStem, range: stemRange) != nil {
+                return .blurayStream
+            }
+            if genericNames.contains(lowerStem) || discIndexRegex?.firstMatch(in: trimmedStem, range: stemRange) != nil {
+                return .genericDiscLabel
+            }
+            return nil
+        }()
 
-        // 2. Check DVD VTS pattern (VTS_01_1)
-        if let regex = dvdVtsRegex,
-           regex.firstMatch(in: trimmedStem, range: NSRange(trimmedStem.startIndex..., in: trimmedStem)) != nil {
+        if let matchedReason {
+            let parentHint = suggestedTitleFromParent(fileURL: fileURL)
             return DiscRipDetectionResult(
                 isDiscRip: true,
-                reason: .dvdStream,
-                suggestedTitle: nil
-            )
-        }
-
-        // 3. Check Blu-ray numeric stream pattern (00001, 00800)
-        if let regex = blurayStreamRegex,
-           regex.firstMatch(in: trimmedStem, range: NSRange(trimmedStem.startIndex..., in: trimmedStem)) != nil {
-            return DiscRipDetectionResult(
-                isDiscRip: true,
-                reason: .blurayStream,
-                suggestedTitle: nil
-            )
-        }
-
-        // 4. Check generic disc volume words (e.g. "DVD", "UNTITLED", "DISC1")
-        if genericNames.contains(lowerStem) {
-            return DiscRipDetectionResult(
-                isDiscRip: true,
-                reason: .genericDiscLabel,
-                suggestedTitle: nil
-            )
-        }
-
-        if let regex = discIndexRegex,
-           regex.firstMatch(in: trimmedStem, range: NSRange(trimmedStem.startIndex..., in: trimmedStem)) != nil {
-            return DiscRipDetectionResult(
-                isDiscRip: true,
-                reason: .genericDiscLabel,
-                suggestedTitle: nil
+                reason: matchedReason,
+                suggestedTitle: parentHint
             )
         }
 
@@ -142,10 +121,11 @@ public struct DiscRipRecognizer: Sendable {
             // If the prefix itself is a generic word like "DISC1" or "title"
             if genericNames.contains(cleanedSuggestion.lowercased()) ||
                (discIndexRegex?.firstMatch(in: cleanedSuggestion, range: NSRange(cleanedSuggestion.startIndex..., in: cleanedSuggestion)) != nil) {
+                let parentHint = suggestedTitleFromParent(fileURL: fileURL)
                 return DiscRipDetectionResult(
                     isDiscRip: true,
                     reason: .genericMakeMKV,
-                    suggestedTitle: nil
+                    suggestedTitle: parentHint
                 )
             }
 
@@ -161,15 +141,30 @@ public struct DiscRipRecognizer: Sendable {
             let lowerMeta = meta.lowercased()
             if genericNames.contains(lowerMeta) ||
                (discIndexRegex?.firstMatch(in: meta, range: NSRange(meta.startIndex..., in: meta)) != nil) {
+                let cleaned = cleanSuggestedDiscTitle(trimmedStem)
+                let parentHint = suggestedTitleFromParent(fileURL: fileURL)
                 return DiscRipDetectionResult(
                     isDiscRip: true,
                     reason: .emptyOrGenericMetadata,
-                    suggestedTitle: cleanSuggestedDiscTitle(trimmedStem)
+                    suggestedTitle: cleaned.isEmpty ? parentHint : cleaned
                 )
             }
         }
 
         return DiscRipDetectionResult(isDiscRip: false)
+    }
+
+    /// Attempts to extract a meaningful title hint from the parent directory
+    public static func suggestedTitleFromParent(fileURL: URL) -> String? {
+        let parentDir = fileURL.deletingLastPathComponent().lastPathComponent
+        guard !parentDir.isEmpty, parentDir != "/" else { return nil }
+        let lower = parentDir.lowercased()
+        if genericNames.contains(lower) { return nil }
+        if let regex = discIndexRegex, regex.firstMatch(in: parentDir, range: NSRange(parentDir.startIndex..., in: parentDir)) != nil {
+            return nil
+        }
+        let cleaned = cleanSuggestedDiscTitle(parentDir)
+        return cleaned.isEmpty ? nil : cleaned
     }
 
     /// Clean up raw volume names like "THE_LORD_OF_THE_RINGS_D1" into "The Lord of the Rings"

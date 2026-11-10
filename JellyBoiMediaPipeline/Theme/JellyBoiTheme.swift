@@ -72,38 +72,6 @@ public struct GlassProgressBar: View {
     }
 }
 
-// MARK: - Badge Capsule
-
-public struct JellyBadge: View {
-    let text: String
-    var systemIcon: String? = nil
-    var tintColor: Color = .accentColor
-
-    public init(_ text: String, systemIcon: String? = nil, tintColor: Color = .accentColor) {
-        self.text = text
-        self.systemIcon = systemIcon
-        self.tintColor = tintColor
-    }
-
-    public var body: some View {
-        HStack(spacing: 4) {
-            if let systemIcon {
-                Image(systemName: systemIcon)
-                    .font(.system(size: 10, weight: .semibold))
-            }
-            Text(text)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 3)
-        .background(
-            Capsule()
-                .fill(tintColor.opacity(0.14))
-        )
-        .foregroundStyle(tintColor)
-    }
-}
-
 // MARK: - Circular Icon Button
 
 public struct JellyIconButton: View {

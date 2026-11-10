@@ -60,30 +60,6 @@ public final class KeychainHelper: @unchecked Sendable {
         return nil
     }
 
-    /// Deletes a key from Keychain.
-    @discardableResult
-    public func delete(forKey key: String, service: String = KeychainHelper.defaultService) -> Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        UserDefaults.standard.removeObject(forKey: key)
-        return deleteInternal(forKey: key, service: service)
-    }
-
-    /// Migrates any legacy plaintext keys stored in UserDefaults into Keychain and deletes them from UserDefaults.
-    public func migrateFromUserDefaultsIfNeeded(keys: [String], service: String = KeychainHelper.defaultService) {
-        let defaults = UserDefaults.standard
-        for key in keys {
-            if let legacyValue = defaults.string(forKey: key), !legacyValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                if get(forKey: key, service: service) == nil {
-                    set(legacyValue, forKey: key, service: service)
-                }
-                defaults.removeObject(forKey: key)
-            } else if defaults.object(forKey: key) != nil {
-                defaults.removeObject(forKey: key)
-            }
-        }
-    }
-
     // MARK: - Private Helpers (Must be called within lock)
 
     private func setInternal(_ value: String, forKey key: String, service: String) -> Bool {

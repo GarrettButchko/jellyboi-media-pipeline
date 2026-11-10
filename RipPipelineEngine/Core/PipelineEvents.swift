@@ -14,7 +14,6 @@ public enum PipelineStage: String, CaseIterable, Sendable {
     case remuxingTracks = "Remuxing Tracks"
     case applyingCrop = "Applying Crop"
     case movingToLibrary = "Moving to Library"
-    case uploadingToJellyfin = "Uploading to Jellyfin"
     case completed = "Completed"
     case failed = "Failed"
 
@@ -31,7 +30,6 @@ public enum PipelineStage: String, CaseIterable, Sendable {
         case .remuxingTracks: return "slider.horizontal.3"
         case .applyingCrop: return "aspectratio"
         case .movingToLibrary: return "folder"
-        case .uploadingToJellyfin: return "arrow.up.circle.fill"
         case .completed: return "checkmark.circle.fill"
         case .failed: return "exclamationmark.triangle.fill"
         }

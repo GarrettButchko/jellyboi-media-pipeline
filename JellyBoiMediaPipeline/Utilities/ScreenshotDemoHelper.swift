@@ -52,6 +52,11 @@ public enum ScreenshotDemoHelper {
         manager.activeTitlePrompt = TitlePromptRequest(
             fileURL: fakeURL,
             suggestedTitle: "Oppenheimer",
+            candidates: [
+                "Oppenheimer",
+                "Oppenheimer: The Decision to Drop the Bomb",
+                "To End All War: Oppenheimer & the Atomic Bomb"
+            ],
             reason: .rawDiscTrack,
             completion: { title in
                 if let title = title {
@@ -206,7 +211,6 @@ public enum ScreenshotDemoHelper {
             manager.jellyfinDetectionState = .detected(version: "1.0.6", serverName: "Home Media Server")
             manager.jellyfinDetectedServerURL = "http://192.168.1.100:8096"
             manager.config.jellyfinServerURL = "http://192.168.1.100:8096"
-            manager.config.jellyfinUploadEnabled = true
 
             manager.jellyfinQueue.removeAll()
 

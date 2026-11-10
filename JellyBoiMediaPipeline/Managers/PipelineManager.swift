@@ -132,6 +132,7 @@ public struct TitlePromptRequest: Identifiable, Sendable {
     public let id: UUID
     public let fileURL: URL
     public let suggestedTitle: String?
+    public let candidates: [String]
     public let reason: DiscRipReason
     public let completion: @Sendable (String?) -> Void
 
@@ -139,12 +140,14 @@ public struct TitlePromptRequest: Identifiable, Sendable {
         id: UUID = UUID(),
         fileURL: URL,
         suggestedTitle: String?,
+        candidates: [String] = [],
         reason: DiscRipReason,
         completion: @escaping @Sendable (String?) -> Void
     ) {
         self.id = id
         self.fileURL = fileURL
         self.suggestedTitle = suggestedTitle
+        self.candidates = candidates
         self.reason = reason
         self.completion = completion
     }
@@ -204,6 +207,10 @@ final class ManagerPromptProvider: PipelinePromptProvider, @unchecked Sendable {
     }
 
     func promptForTitle(fileURL: URL, suggestedTitle: String?, reason: DiscRipReason) async -> String? {
+        await promptForTitle(fileURL: fileURL, suggestedTitle: suggestedTitle, candidates: [], reason: reason)
+    }
+
+    func promptForTitle(fileURL: URL, suggestedTitle: String?, candidates: [String], reason: DiscRipReason) async -> String? {
         await withCheckedContinuation { continuation in
             Task { @MainActor in
                 guard let manager = self.manager else {
@@ -213,6 +220,7 @@ final class ManagerPromptProvider: PipelinePromptProvider, @unchecked Sendable {
                 manager.activeTitlePrompt = TitlePromptRequest(
                     fileURL: fileURL,
                     suggestedTitle: suggestedTitle,
+                    candidates: candidates,
                     reason: reason,
                     completion: { chosen in
                         continuation.resume(returning: chosen)
@@ -553,14 +561,51 @@ public final class PipelineManager: PipelineDelegate {
                 .replacingOccurrences(of: ".", with: " ")
                 .trimmingCharacters(in: CharacterSet(charactersIn: " -"))
 
-            let epTitle = remainder.isEmpty ? "Episode \(episode)" : remainder
+            let sanitizedSeries = TitleSanitizer.sanitize(rawTitle: seriesRaw)
+            var seriesName = sanitizedSeries.title
+            var detectedYear: String? = sanitizedSeries.year != nil ? String(sanitizedSeries.year!) : nil
+
+            if detectedYear == nil {
+                let yearRegex = try? NSRegularExpression(pattern: #"(?:[\[\(\s._-]|^)((?:19|20)\d{2})(?:[\]\)\s._-]|$)"#)
+                var currentURL = url.deletingLastPathComponent()
+                for _ in 0..<3 {
+                    let folderName = currentURL.lastPathComponent
+                    if folderName.isEmpty || folderName == "/" { break }
+                    if let match = yearRegex?.firstMatch(in: folderName, range: NSRange(folderName.startIndex..., in: folderName)),
+                       let r = Range(match.range(at: 1), in: folderName) {
+                        detectedYear = String(folderName[r])
+                        break
+                    }
+                    currentURL = currentURL.deletingLastPathComponent()
+                }
+            }
+
+            var detectedImdbId: String? = nil
+            let imdbRegex = try? NSRegularExpression(pattern: #"(?i)\[imdbid-(tt\d+)\]"#)
+            let fullPath = url.path
+            if let match = imdbRegex?.firstMatch(in: fullPath, range: NSRange(fullPath.startIndex..., in: fullPath)),
+               let r = Range(match.range(at: 1), in: fullPath) {
+                detectedImdbId = String(fullPath[r])
+            }
+
+            if let imdbRange = seriesName.range(of: #"(?i)\s*\[imdbid-[^\]]+\]"#, options: .regularExpression) {
+                seriesName.removeSubrange(imdbRange)
+            }
+            seriesName = seriesName.trimmingCharacters(in: CharacterSet(charactersIn: " -"))
+
+            var epTitle = remainder
+            if let imdbRange = epTitle.range(of: #"(?i)\s*\[imdbid-[^\]]+\]"#, options: .regularExpression) {
+                epTitle.removeSubrange(imdbRange)
+            }
+            epTitle = epTitle.trimmingCharacters(in: CharacterSet(charactersIn: " -"))
+            if epTitle.isEmpty { epTitle = "Episode \(episode)" }
 
             let item = JellyfinUploadItem(
                 fileURL: url,
                 mediaType: .tvEpisode,
-                title: seriesRaw.isEmpty ? stem : seriesRaw,
-                year: nil,
-                imdbId: nil,
+                title: seriesName.isEmpty ? stem : seriesName,
+                year: detectedYear,
+                imdbId: detectedImdbId,
                 season: season,
                 episode: episode,
                 episodeTitle: epTitle,
@@ -859,14 +904,6 @@ public final class PipelineManager: PipelineDelegate {
         guard let idx = queue.firstIndex(where: { $0.id == id }) else { return }
         let item = queue[idx]
 
-        if let completed = item.completedURL, FileManager.default.fileExists(atPath: completed.path) {
-            sendToJellyfin(queueItem: item)
-            if !isJellyfinUploading {
-                startJellyfinUploads()
-            }
-            return
-        }
-
         var retry = item
         retry.status = .queued
         retry.stage = .queued
@@ -919,7 +956,7 @@ public final class PipelineManager: PipelineDelegate {
                         }
 
                         var detail = current.statusDetail
-                        if detail.hasPrefix("Remuxing") || detail.hasPrefix("Writing") || detail.hasPrefix("Moving") {
+                        if detail.hasPrefix("Remuxing") || detail.hasPrefix("Writing") || detail.hasPrefix("Moving") || detail.contains("Jellyfin") || detail.contains("Streaming") || detail.isEmpty {
                             detail = "Completed"
                         }
 
@@ -969,8 +1006,8 @@ public final class PipelineManager: PipelineDelegate {
 
     // MARK: - PipelineDelegate
 
-    public nonisolated func pipelineDidUpdateProgress(_ update: PipelineProgressUpdate) {
-        Task { @MainActor in
+    public nonisolated func pipelineDidUpdateProgress(_ update: PipelineProgressUpdate) async {
+        await MainActor.run {
             let matchIdx = self.queue.firstIndex(where: {
                 $0.fileURL.path == update.fileURL.path ||
                 $0.id == self.currentItem?.id ||
@@ -1004,8 +1041,8 @@ public final class PipelineManager: PipelineDelegate {
         }
     }
 
-    public nonisolated func pipelineDidLog(level: LogLevel, message: String) {
-        Task { @MainActor in
+    public nonisolated func pipelineDidLog(level: LogLevel, message: String) async {
+        await MainActor.run {
             self.appendLog(level: level, message: message)
         }
     }

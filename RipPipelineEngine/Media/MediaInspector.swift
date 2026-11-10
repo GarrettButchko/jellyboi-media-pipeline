@@ -294,11 +294,6 @@ public struct MediaInspector: Sendable {
         return result
     }
 
-    public func hasEnglishSubRipSubtitle(fileURL: URL) async throws -> Bool {
-        let tracks = try await getMKVTracks(fileURL: fileURL)
-        return tracks.contains { $0.isEnglishSubtitle && $0.isSubRip }
-    }
-
     public func hasEligibleEmbeddedSubtitle(fileURL: URL, config: PipelineConfig) async throws -> Bool {
         let tracks = try await getMKVTracks(fileURL: fileURL)
         return tracks.contains {

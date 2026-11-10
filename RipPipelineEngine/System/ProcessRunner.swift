@@ -14,15 +14,12 @@ public struct ProcessResult: Sendable {
 
 public enum ProcessError: Error, LocalizedError {
     case executableNotFound(String)
-    case executionFailed(exitCode: Int32, stderr: String)
     case timedOut(seconds: Double)
 
     public var errorDescription: String? {
         switch self {
         case .executableNotFound(let name):
             return "Executable '\(name)' not found."
-        case .executionFailed(let code, let err):
-            return "Process failed with exit code \(code): \(err)"
         case .timedOut(let sec):
             return "Process timed out after \(sec) seconds."
         }

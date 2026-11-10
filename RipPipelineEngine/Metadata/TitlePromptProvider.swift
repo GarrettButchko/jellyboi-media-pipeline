@@ -6,11 +6,13 @@ public protocol PipelinePromptProvider: Sendable {
     /// - Parameters:
     ///   - fileURL: The URL of the MKV file being processed
     ///   - suggestedTitle: An optional heuristic title inferred from the volume label
+    ///   - candidates: Optional AI or heuristic candidate titles to pick from
     ///   - reason: Why the file was flagged as straight from the disc
     /// - Returns: A user-provided title (e.g. "Inception (2010)" or "Breaking Bad S01E01"), or nil if skipped/cancelled
     func promptForTitle(
         fileURL: URL,
         suggestedTitle: String?,
+        candidates: [String],
         reason: DiscRipReason
     ) async -> String?
 
@@ -32,6 +34,14 @@ public protocol PipelinePromptProvider: Sendable {
 public typealias TitlePromptProvider = PipelinePromptProvider
 
 public extension PipelinePromptProvider {
+    func promptForTitle(
+        fileURL: URL,
+        suggestedTitle: String?,
+        reason: DiscRipReason
+    ) async -> String? {
+        await promptForTitle(fileURL: fileURL, suggestedTitle: suggestedTitle, candidates: [], reason: reason)
+    }
+
     func promptForTitleDisambiguation(
         fileURL: URL,
         originalQuery: String,
@@ -58,18 +68,26 @@ public struct CLITitlePromptProvider: PipelinePromptProvider {
     public func promptForTitle(
         fileURL: URL,
         suggestedTitle: String?,
+        candidates: [String],
         reason: DiscRipReason
     ) async -> String? {
         let isTerminal = isatty(STDIN_FILENO) != 0
         guard isTerminal else {
-            // Non-interactive CLI: return suggestion if available
-            return suggestedTitle
+            // Non-interactive CLI: return suggestion or first candidate if available
+            return candidates.first ?? suggestedTitle
         }
 
         print("\n" + String(repeating: "=", count: 65))
         print("💿  RAW DISC RIP DETECTED: \(fileURL.lastPathComponent)")
         print("    \(reason.userExplanation)")
-        if let suggested = suggestedTitle, !suggested.isEmpty {
+
+        if !candidates.isEmpty {
+            print("    Candidate titles found:")
+            for (idx, cand) in candidates.enumerated() {
+                print("    [\(idx + 1)] \(cand)")
+            }
+            print("    Press [1-\(candidates.count)] to pick, or type the accurate title.")
+        } else if let suggested = suggestedTitle, !suggested.isEmpty {
             print("    Suggested Title: '\(suggested)'")
             print("    Press [Enter] to accept suggestion, or type the accurate title.")
         } else {
@@ -77,21 +95,32 @@ public struct CLITitlePromptProvider: PipelinePromptProvider {
             print("    Examples: 'The Matrix (1999)' or 'Breaking Bad S01E01'")
         }
         print(String(repeating: "-", count: 65))
-        print("Enter title (or type 'skip' to use filename): ", terminator: "")
+        print("Enter title or choice number (or type 'skip' to use filename): ", terminator: "")
         fflush(stdout)
 
         guard let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines) else {
-            return suggestedTitle
+            return candidates.first ?? suggestedTitle
         }
 
         if input.isEmpty {
-            return suggestedTitle
+            return candidates.first ?? suggestedTitle
         }
         if input.lowercased() == "skip" {
             return nil
         }
+        if let idx = Int(input), idx >= 1, idx <= candidates.count {
+            return candidates[idx - 1]
+        }
 
         return input
+    }
+
+    public func promptForTitle(
+        fileURL: URL,
+        suggestedTitle: String?,
+        reason: DiscRipReason
+    ) async -> String? {
+        await promptForTitle(fileURL: fileURL, suggestedTitle: suggestedTitle, candidates: [], reason: reason)
     }
 
     public func promptForTitleDisambiguation(

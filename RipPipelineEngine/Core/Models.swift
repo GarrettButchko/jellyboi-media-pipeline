@@ -188,6 +188,108 @@ public struct TVEpisodeMatch: Sendable {
     }
 }
 
+// MARK: - Pipeline Media Target & Area Models
+
+public struct TVSeriesInfo: Sendable {
+    public let title: String
+    public let year: String
+    public let imdbId: String
+
+    public init(title: String, year: String, imdbId: String) {
+        self.title = title
+        self.year = year
+        self.imdbId = imdbId
+    }
+}
+
+public struct TVEpisodeHint: Sendable {
+    public let seriesTitle: String
+    public let season: Int
+    public let episode: Int
+
+    public init(seriesTitle: String, season: Int, episode: Int) {
+        self.seriesTitle = seriesTitle
+        self.season = season
+        self.episode = episode
+    }
+}
+
+public enum PipelineMediaTarget: Sendable {
+    case movie(match: MovieMatch, parsedTitle: String? = nil)
+    case tvEpisode(series: TVSeriesInfo, episode: TVEpisodeMatch, season: Int, episodeNumber: Int)
+
+    public var isTV: Bool {
+        switch self {
+        case .movie: return false
+        case .tvEpisode: return true
+        }
+    }
+
+    public var displayTitle: String {
+        switch self {
+        case .movie(let match, _):
+            return "\(match.title) (\(match.year))"
+        case .tvEpisode(let series, _, let season, let episodeNumber):
+            return "\(series.title) S\(String(format: "%02d", season))E\(String(format: "%02d", episodeNumber))"
+        }
+    }
+
+    public var matchedSubtitle: String {
+        switch self {
+        case .movie(let match, _):
+            return "Matched: \(match.imdbId)"
+        case .tvEpisode(_, let ep, _, _):
+            return "Matched: \(ep.episodeTitle)"
+        }
+    }
+
+    public var imdbId: String {
+        switch self {
+        case .movie(let match, _):
+            return match.imdbId
+        case .tvEpisode(_, let ep, _, _):
+            return ep.episodeImdbId
+        }
+    }
+
+    public var openSubtitlesMediaType: String {
+        switch self {
+        case .movie:
+            return "movie"
+        case .tvEpisode:
+            return "episode"
+        }
+    }
+}
+
+public struct MediaInspectionResult: Sendable {
+    public let crop: CropEdges?
+    public let videoDuration: Double?
+    public let hasEmbeddedSub: Bool
+    public let videoFPS: Double?
+
+    public init(crop: CropEdges?, videoDuration: Double?, hasEmbeddedSub: Bool, videoFPS: Double?) {
+        self.crop = crop
+        self.videoDuration = videoDuration
+        self.hasEmbeddedSub = hasEmbeddedSub
+        self.videoFPS = videoFPS
+    }
+}
+
+public struct SubtitleResolutionResult: Sendable {
+    public let srtTmpURL: URL?
+    public let normalizedEmbedded: Bool
+    public let embeddedSrt: Bool
+    public let srtData: Data?
+
+    public init(srtTmpURL: URL?, normalizedEmbedded: Bool, embeddedSrt: Bool, srtData: Data?) {
+        self.srtTmpURL = srtTmpURL
+        self.normalizedEmbedded = normalizedEmbedded
+        self.embeddedSrt = embeddedSrt
+        self.srtData = srtData
+    }
+}
+
 public struct SubtitleCandidate: Sendable, Identifiable {
     public let fileId: String
     public let release: String

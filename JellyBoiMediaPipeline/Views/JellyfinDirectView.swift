@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 import BaseColors
 import LoggingKit
 
-struct QueueView: View {
+struct JellyfinDirectView: View {
     @Bindable var manager: PipelineManager
     @State private var isTargeted = false
 
@@ -13,20 +13,22 @@ struct QueueView: View {
             Color.bg
                 .ignoresSafeArea()
 
-            if manager.queue.isEmpty {
-                emptyDropZone
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 10) {
-                        ForEach(manager.queue) { item in
-                            QueueRowView(item: item, manager: manager)
-                                .transition(.asymmetric(
-                                    insertion: .opacity.combined(with: .move(edge: .top)),
-                                    removal: .opacity.combined(with: .scale(scale: 0.96))
-                                ))
+            VStack(spacing: 0) {
+                if manager.jellyfinQueue.isEmpty {
+                    emptyDropZone
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 10) {
+                            ForEach(manager.jellyfinQueue) { item in
+                                JellyfinQueueRowView(item: item, manager: manager)
+                                    .transition(.asymmetric(
+                                        insertion: .opacity.combined(with: .move(edge: .top)),
+                                        removal: .opacity.combined(with: .scale(scale: 0.96))
+                                    ))
+                            }
                         }
+                        .padding(16)
                     }
-                    .padding(16)
                 }
             }
         }
@@ -49,9 +51,9 @@ struct QueueView: View {
                 .padding(20)
 
             EmptyStateView(
-                icon: isTargeted ? "arrow.down.circle.fill" : "slider.horizontal.3",
-                title: isTargeted ? "Drop to Add MKV Files" : "Drag & Drop MKV Disc Rips",
-                message: "Rip Pipeline will automatically inspect streams, match IMDb titles, detect video crop, fetch subtitles, and organize into your library."
+                icon: isTargeted ? "arrow.down.circle.fill" : "server.rack",
+                title: isTargeted ? "Drop Files to Upload to Jellyfin" : "Direct Download / Upload to Jellyfin",
+                message: "Drop finished MKV remuxes or video files here to stream directly to your Jellyfin server. Uploads are processed separately from the remuxing queue."
             )
         }
         .animation(.smooth(duration: 0.2), value: isTargeted)
@@ -62,7 +64,7 @@ struct QueueView: View {
             _ = provider.loadObject(ofClass: URL.self) { url, _ in
                 if let url = url {
                     Task { @MainActor in
-                        manager.addFiles(urls: [url])
+                        manager.addJellyfinFiles(urls: [url])
                     }
                 }
             }
@@ -71,32 +73,52 @@ struct QueueView: View {
     }
 }
 
-// MARK: - Queue Item Row (Flat, No Shadows)
+// MARK: - Jellyfin Queue Row View
 
-struct QueueRowView: View {
-    let item: QueueItem
+struct JellyfinQueueRowView: View {
+    let item: JellyfinUploadItem
     @Bindable var manager: PipelineManager
 
-
-    private var displayDetail: String {
-        if item.status == .completed {
-            if item.statusDetail.hasPrefix("Remuxing") || item.statusDetail.hasPrefix("Moving") || item.statusDetail.isEmpty {
-                return "Successfully organized to library"
-            }
+    private var iconName: String {
+        switch item.mediaType {
+        case .movie:
+            return "film"
+        case .tvEpisode:
+            return "tv"
         }
-        return item.statusDetail
+    }
+
+   
+        
+    
+
+    private var destinationLabel: String {
+        if item.mediaType == .movie {
+            let path = item.targetServerPath ?? manager.config.jellyfinMovieServerPath
+            return path.isEmpty ? "Movie Library" : "Movies: \(path)"
+        } else {
+            let path = item.targetServerPath ?? manager.config.jellyfinTvServerPath
+            return path.isEmpty ? "TV Shows" : "TV: \(path)"
+        }
+    }
+
+    private var detailText: String {
+        if item.statusDetail.isEmpty {
+            return destinationLabel
+        }
+        return "\(item.statusDetail) • \(destinationLabel)"
     }
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            // Stage / Media icon
+            // Media Icon
             ZStack {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(item.status.color.opacity(0.14))
                     .frame(width: 38, height: 38)
 
-                Image(systemName: item.stage.systemImageName)
-                    .font(.system(size: 17, weight: .semibold))
+                Image(systemName: item.status == .completed ? "checkmark.circle.fill" : iconName)
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(item.status.color)
                     .contentTransition(.symbolEffect(.replace))
             }
@@ -104,11 +126,11 @@ struct QueueRowView: View {
             // Info
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(item.fileName)
+                    Text(item.fileURL.deletingPathExtension().lastPathComponent)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(Color.mainOpp)
                         .lineLimit(1)
-                    
+
                     Text(item.fileSizeString)
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.mainOpp.opacity(0.5))
@@ -116,12 +138,12 @@ struct QueueRowView: View {
                     Spacer()
                 }
 
-                Text(displayDetail)
+                Text(detailText)
                     .font(.system(size: 12, weight: .regular, design: .rounded))
-                    .foregroundStyle(Color.mainOpp.opacity(0.6))
+                    .foregroundStyle(item.status == .failed ? Color.red : Color.mainOpp.opacity(0.6))
                     .lineLimit(1)
 
-                if item.status == .running {
+                if item.status == .uploading {
                     GlassProgressBar(
                         progress: item.progressFraction,
                         barHeight: 4,
@@ -140,25 +162,23 @@ struct QueueRowView: View {
                 }
             }
 
-            // Action buttons
+            // Action Buttons
             HStack(spacing: 6) {
-                if item.status == .completed {
-                    JellyIconButton(systemImage: "arrow.up.circle", tintColor: Color.accentColor) {
-                        manager.sendToJellyfin(queueItem: item)
+                if item.status == .failed || item.status == .cancelled {
+                    JellyIconButton(systemImage: "arrow.clockwise", tintColor: Color.accentColor) {
+                        manager.retryJellyfinItem(id: item.id)
                     }
-                    .help("Send to Direct to Jellyfin")
+                    .help("Retry upload")
                 }
 
-                if let completedURL = item.completedURL {
-                    JellyIconButton(systemImage: "folder", tintColor: Color.accentColor) {
-                        NSWorkspace.shared.activateFileViewerSelecting([completedURL])
-                    }
-                    .help("Show in Finder")
+                JellyIconButton(systemImage: "folder", tintColor: Color.accentColor) {
+                    NSWorkspace.shared.activateFileViewerSelecting([item.fileURL])
                 }
+                .help("Show in Finder")
 
-                if item.status != .running {
+                if item.status != .uploading {
                     JellyIconButton(systemImage: "xmark", tintColor: Color.mainOpp.opacity(0.45)) {
-                        manager.removeItem(id: item.id)
+                        manager.removeJellyfinItem(id: item.id)
                     }
                     .help("Remove item")
                 }
@@ -168,6 +188,5 @@ struct QueueRowView: View {
         .padding(.vertical, 11)
         .jellyCard(cornerRadius: 12)
         .animation(.smooth(duration: 0.3), value: item.status)
-        .animation(.smooth(duration: 0.3), value: item.stage)
     }
 }
